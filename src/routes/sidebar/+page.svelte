@@ -14,20 +14,21 @@
 
 	$notes = data.notes;
 	$folders = data.folders;
-</script>
 
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<div
-	class="flex-none py-8 px-2 w-52 h-full overflow-y-auto bg-slate-100 items-list overflow-x-clip"
-	on:click={(e) => {
-		// console.log(e.target?.className);
-		if (e.target?.className.includes('items-list')) {
+	const removeFocus = (e: any) => {
+		if (e.target.classList.contains('items-list')) {
 			$fileOrFolderInFocus = {
 				type: 'file',
 				id: ''
 			};
 		}
-	}}
+	};
+</script>
+
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<div
+	class="flex-none py-8 px-2 w-52 h-full overflow-y-auto bg-slate-100 items-list overflow-x-clip"
+	on:click={removeFocus}
 	on:keydown={(e) => {
 		if (e.key === 'Escape') {
 			$fileOrFolderInFocus = {
@@ -76,10 +77,10 @@
 					$notes = [...$notes, record];
 				}
 
-				$fileOrFolderInFocus = {
-					type: 'file',
-					id: record.id
-				};
+				// $fileOrFolderInFocus = {
+				// 	type: 'file',
+				// 	id: record.id
+				// };
 
 				$tabs = $tabs.map((t) => {
 					return { ...t, active: false };

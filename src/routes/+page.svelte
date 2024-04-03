@@ -17,7 +17,7 @@
 >
 	<h1 class="text-5xl font-black">ScratchPad</h1>
 
-	<h3 class="text-base">An end-to-end encrypted notepad.</h3>
+	<h3 class="text-base">Your end-to-end encrypted notepad.</h3>
 
 	<button
 		title="Create new note"

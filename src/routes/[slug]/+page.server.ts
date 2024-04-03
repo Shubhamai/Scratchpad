@@ -6,7 +6,7 @@ export async function load({ params, locals }) {
 	try {
 		const record = await locals.pb.collection('notes').getOne(slug);
 		return { record };
-	} catch (e) {
+	} catch (e : any) {
 		console.log(e.message);
         
         // TODO - redirect or 404 ?

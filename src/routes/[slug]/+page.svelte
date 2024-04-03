@@ -4,12 +4,22 @@
 	import { pocketbase } from '$lib';
 	import { stringEncryptAsymmetric, stringDecryptAsymmetric } from '$lib/crypto';
 	import { onMount } from 'svelte';
+	import { afterNavigate, beforeNavigate, onNavigate } from '$app/navigation';
 
 	export let data;
-	let note = '';
 
-	onMount(() => {
-		note = stringDecryptAsymmetric(
+	// onMount(() => {
+		// console.log('onMount');
+		// 	data.record.note = stringDecryptAsymmetric(
+		// 		localStorage.getItem('priv') || '',
+		// 		{ key: localStorage.getItem('pub') || '' },
+		// 		data.record?.note
+		// 	);
+	// });
+
+	afterNavigate(() => {
+		// console.log('afterNavigate');
+		data.record.note = stringDecryptAsymmetric(
 			localStorage.getItem('priv') || '',
 			{ key: localStorage.getItem('pub') || '' },
 			data.record?.note
@@ -25,7 +35,7 @@
 	<CodeMirror
 		class="flex-auto"
 		lang={markdown()}
-		value={note}
+		value={data.record.note}
 		on:change={async (e) => {
 			const encrypted = stringEncryptAsymmetric(
 				localStorage.getItem('priv') || '',
@@ -36,10 +46,8 @@
 		}}
 		styles={{
 			'&': {
-				height: '100%', // TODD : perhaps calculate this for responsive
-				maxHeight: '100%',
-				width: '100%',
-				maxWidth: '100%'
+				height: '59.2rem', // TODD : perhaps calculate this for responsive
+				width: '107rem'
 			}
 		}}
 	/>

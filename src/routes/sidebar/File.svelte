@@ -9,6 +9,26 @@
 
 	export let note: any;
 	let isEditing = false;
+
+	const onRenameFileInputChange = (e: any) => {
+		pocketbase.collection('notes').update(note.id, {
+			title: e?.target?.value
+		});
+
+		$notes = $notes.map((n) => {
+			if (n.id === note.id) {
+				return { ...n, title: e?.target?.value };
+			}
+			return n;
+		});
+
+		$tabs = $tabs.map((t) => {
+			if (t.id === note.id) {
+				return { ...t, name: e?.target?.value };
+			}
+			return t;
+		});
+	};
 </script>
 
 <div
@@ -27,25 +47,7 @@
 				class="text-left w-full max-w-full focus:outline-none bg-transparent"
 				type="text"
 				bind:value={note.title}
-				on:change={(e) => {
-					pocketbase.collection('notes').update(note.id, {
-						title: e?.target?.value
-					});
-
-					$notes = $notes.map((n) => {
-						if (n.id === note.id) {
-							return { ...n, title: e?.target?.value };
-						}
-						return n;
-					});
-
-					$tabs = $tabs.map((t) => {
-						if (t.id === note.id) {
-							return { ...t, name: e?.target?.value };
-						}
-						return t;
-					});
-				}}
+				on:change={onRenameFileInputChange}
 				on:blur={() => {
 					isEditing = false;
 				}}
@@ -124,7 +126,7 @@
 						$tabs = $tabs.filter((t) => t.id !== note.id);
 
 						// if there si another tab, set that as active
-						if ($tabs.length > 1) {
+						if ($tabs.length > 0) {
 							// change the first tab to active,
 							$tabs = $tabs.map((t) => {
 								if (t.id === $tabs[0].id) {
