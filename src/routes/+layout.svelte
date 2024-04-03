@@ -13,8 +13,8 @@
 </script>
 
 <!-- TODO : Entiler frame should be editable, no [enterrr] in the main frame to create new line -->
-<div class="flex flex-col">
-	<div class="flex flex-row h-[60.7rem]">
+<div class="flex flex-col h-screen w-screen">
+	<div class="flex flex-row h-full w-full">
 		<div class="flex-auto flex flex-col">
 			<Header />
 			<slot />

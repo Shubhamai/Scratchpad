@@ -6,7 +6,7 @@
 
 <div class="bg-slate-200 flex flex-row gap-[2px]">
 	{#if $tabs.length === 0}
-		<div class="w-fit px-2">&nbsp;</div>
+		<div class="w-full px-2 text-center">Notes</div>
 	{/if}
 	{#each $tabs as tab (tab.id)}
 		<div

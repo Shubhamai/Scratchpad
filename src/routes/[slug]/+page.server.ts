@@ -1,15 +1,15 @@
-import { error } from '@sveltejs/kit';
+import { redirect } from '@sveltejs/kit';
 
-export async  function load({ params, locals }) {
+export async function load({ params, locals }) {
+	const { slug } = params;
 
-    const { slug } = params;
-    const record = await locals.pb.collection('notes').getOne(slug);
-    
-    if (!record) {
-        throw error(404, `Note not found`);
-    }
-
-    return {
-        record
-    };
+	try {
+		const record = await locals.pb.collection('notes').getOne(slug);
+		return { record };
+	} catch (e) {
+		console.log(e.message);
+        
+        // TODO - redirect or 404 ?
+		throw redirect(301, '/');
+	}
 }

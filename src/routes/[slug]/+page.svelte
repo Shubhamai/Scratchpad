@@ -6,7 +6,7 @@
 	export let data;
 </script>
 
-<div class="flex flex-row">
+<div class="flex flex-row w-full h-full">
 	<CodeMirror
 		class="flex-auto"
 		lang={markdown()}
@@ -16,8 +16,10 @@
 		}}
 		styles={{
 			'&': {
-				height: '59.2rem', // TODD : perhaps calculate this for responsive
-				width: '107rem'
+				height: '100%', // TODD : perhaps calculate this for responsive
+				maxHeight: '100%',
+				width: '100%',
+				maxWidth: '100%'
 			}
 		}}
 	/>
