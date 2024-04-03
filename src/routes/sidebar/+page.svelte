@@ -7,7 +7,6 @@
 
 	import Folder from './Folder.svelte';
 	import File from './File.svelte';
-	import { goto } from '$app/navigation';
 
 	export let data;
 
@@ -17,9 +16,10 @@
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
-	class="flex-none py-8 px-2 w-52 h-full overflow-y-auto bg-slate-100 items-list"
+	class="flex-none py-8 px-2 w-52 h-full overflow-y-auto bg-slate-100 items-list overflow-x-clip"
 	on:click={(e) => {
-		if (e.target.className.includes('items-list')) {
+		// console.log(e.target?.className);
+		if (e.target?.className.includes('items-list')) {
 			$fileOrFolderInFocus = {
 				type: 'file',
 				id: ''
@@ -77,19 +77,21 @@
 			<FolderAdd />
 		</button>
 	</section>
-	<hr class="border-slate-300 my-4 mx-3" />
+	<section class="px-2">
+		<hr class="border-slate-300 my-4" />
 
-	<div class="px-2 flex flex-col gap-1 list-decimal">
-		{#each $folders as folder (folder.id)}
-			<Folder {folder} />
-			<!-- <Folder {folder} {folders} /> -->
-		{/each}
-		{#each $notes as note (note.id)}
-			{#if !note.folder_id}
-				<File {note} />
-			{/if}
+		<div class="flex flex-col gap-1 list-decimal">
+			{#each $folders as folder (folder.id)}
+				<Folder {folder} />
+				<!-- <Folder {folder} {folders} /> -->
+			{/each}
+			{#each $notes as note (note.id)}
+				{#if !note.folder_id}
+					<File {note} />
+				{/if}
 
-			<!-- <File {note} {notes} /> -->
-		{/each}
-	</div>
+				<!-- <File {note} {notes} /> -->
+			{/each}
+		</div>
+	</section>
 </div>

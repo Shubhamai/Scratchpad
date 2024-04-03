@@ -9,7 +9,7 @@
 	import { goto } from '$app/navigation';
 
 	export let folder: any;
-	
+
 	let open = false;
 </script>
 

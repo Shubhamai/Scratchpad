@@ -1,8 +1,15 @@
+const defaultTheme = require('tailwindcss/defaultTheme')
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./src/**/*.{html,js,svelte,ts}'],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        // 'sans': ['Inter', 'Fuggles'],
+        'sans': ['Inter', ...defaultTheme.fontFamily.sans],
+      },
+    }
   },
   plugins: [],
 }
