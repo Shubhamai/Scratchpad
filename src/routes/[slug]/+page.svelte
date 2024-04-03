@@ -1,27 +1,39 @@
 <script lang="ts">
 	import CodeMirror from 'svelte-codemirror-editor';
 	import { markdown } from '@codemirror/lang-markdown';
-	import { pocketbase } from '$lib';
+	import { notesdb } from '$lib';
 	import { stringEncryptAsymmetric, stringDecryptAsymmetric } from '$lib/crypto';
 	import { onMount } from 'svelte';
-	import { afterNavigate, beforeNavigate, onNavigate } from '$app/navigation';
+	import { afterNavigate, beforeNavigate, goto, onNavigate } from '$app/navigation';
 	import { showSidebar } from '$lib/sidebar.js';
 	import keystore from 'keystore-idb';
 	import type { KeyStore } from 'keystore-idb/lib/types.js';
+	import { liveQuery } from 'dexie';
+	import { page } from '$app/stores';
 
-	export let data;
+	// export let data;
+	let data = liveQuery(() => notesdb.notes.where('id').equals($page.params.slug).first());
+
 	let note = '';
 
 	let ks1: null | KeyStore;
 	let ks2: null | KeyStore;
 
 	afterNavigate(async () => {
+		// $data = await notesdb.notes.where('id').equals($page.params.slug).first();
+		data = liveQuery(() => notesdb.notes.where('id').equals($page.params.slug).first());
+
 		ks1 = await keystore.init({ storeName: 'keystore' });
 		ks2 = await keystore.init({ storeName: 'keystore2' });
 
 		const exchangeKey1 = await ks1.publicExchangeKey();
 
-		note = await ks2.decrypt(data.record?.note, exchangeKey1);
+		const encryptedNote = $data?.note;
+		if (encryptedNote) {
+			note = await ks2.decrypt(encryptedNote, exchangeKey1);
+		} else {
+			await goto('/');
+		}
 	});
 
 	let styleObj = {
@@ -30,6 +42,8 @@
 	};
 
 	onMount(() => {
+		data = liveQuery(() => notesdb.notes.where('id').equals($page.params.slug).first());
+
 		const handleResize = () => {
 			showSidebar.subscribe((v) => {
 				if (v) {
@@ -91,7 +105,7 @@
 </script>
 
 <svelte:head>
-	<title>{data.record?.title}</title>
+	<title>{$data?.title}</title>
 </svelte:head>
 
 <CodeMirror
@@ -106,7 +120,12 @@
 		const exchangeKey2 = await ks2.publicExchangeKey();
 		const cipher = await ks1.encrypt(e.detail, exchangeKey2);
 
-		await pocketbase.collection('notes').update(data.record?.id, { note: cipher });
+		// await pocketbase.collection('notes').update($data?.id, { note: cipher });
+
+		await notesdb.notes.update($data?.id, {
+			note: cipher,
+			updated: new Date().toISOString()
+		});
 	}}
 	styles={{ '&': styleObj }}
 />

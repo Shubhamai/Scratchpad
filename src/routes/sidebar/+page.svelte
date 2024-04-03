@@ -2,21 +2,37 @@
 	import DocumentAdd from 'carbon-icons-svelte/lib/DocumentAdd.svelte';
 	import FolderAdd from 'carbon-icons-svelte/lib/FolderAdd.svelte';
 	import OpenPanelRight from 'carbon-icons-svelte/lib/OpenPanelRight.svelte';
-	import { currentUser, pocketbase } from '$lib';
+	import { currentUser, notesdb } from '$lib';
 	import { dndzone } from 'svelte-dnd-action';
 	import { flip } from 'svelte/animate';
-	import { fileOrFolderInFocus, notes, folders, tabs, showSidebar } from '$lib/sidebar';
+	import { fileOrFolderInFocus, tabs, showSidebar } from '$lib/sidebar';
 	import keystore from 'keystore-idb';
 
 	import Folder from './Folder.svelte';
 	import File from './File.svelte';
 	import { goto } from '$app/navigation';
-	import { stringEncryptAsymmetric } from '$lib/crypto';
+	import { nanoid } from 'nanoid';
+	import { liveQuery } from 'dexie';
 
-	export let data;
+	// export let data;
 
-	$notes = data.notes;
-	$folders = data.folders;
+	let files: any[] = [];
+	let folders: any[] = [];
+	liveQuery(() => notesdb.notes.filter((n) => !n.folder_id).toArray()).subscribe((n) => {
+		files = n;
+
+		// $notes = n;
+
+		// console.log('notes ', $notes);
+	});
+
+	liveQuery(() => notesdb.folders.toArray()).subscribe((n) => {
+		folders = n;
+
+		// $folders = n;
+
+		// console.log('folders ', $folders);
+	});
 
 	const removeFocus = (e: any) => {
 		if (e.target.classList.contains('items-list')) {
@@ -27,11 +43,11 @@
 		}
 	};
 
-	let files = $notes.filter((n) => !n.folder_id);
+	// let files = $notes.filter((n) => !n.folder_id);
 
-	notes.subscribe((n) => {
-		files = n.filter((n) => !n.folder_id);
-	});
+	// notes.subscribe((n) => {
+	// 	files = n.filter((n) => !n.folder_id);
+	// });
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -62,7 +78,7 @@
 			on:click={async () => {
 				let record;
 
-				const title = `Note #${$notes.length + 1}`;
+				const title = `Note #${(await notesdb.notes.count()) + 1}`;
 
 				const ks1 = await keystore.init({ storeName: 'keystore' });
 				const ks2 = await keystore.init({ storeName: 'keystore2' });
@@ -75,28 +91,54 @@
 				);
 
 				if ($fileOrFolderInFocus.type === 'file') {
-					record = await pocketbase.collection('notes').create({
-						title,
-						note: encryptedNote,
-						user_id: $currentUser?.id
-					});
-
-					$notes = [...$notes, record];
-				} else {
-					record = await pocketbase.collection('notes').create({
+					// record = await pocketbase.collection('notes').create({
+					// 	title,
+					// 	note: encryptedNote,
+					// 	user_id: $currentUser?.id
+					// });
+					record = {
+						id: nanoid(),
 						title,
 						note: encryptedNote,
 						user_id: $currentUser?.id,
-						folder_id: $fileOrFolderInFocus.id
-					});
+						created: new Date().toISOString(),
+						updated: new Date().toISOString(),
+						folder_id: ''
+					};
+					await notesdb.notes.add(record);
 
-					await pocketbase.collection('folders').update($fileOrFolderInFocus.id, {
-						notes: $folders.find((f) => f.id === $fileOrFolderInFocus.id)?.notes
-							? [...$folders.find((f) => f.id === $fileOrFolderInFocus.id)?.notes, record.id]
-							: [record.id]
-					});
+					// $notes = [...$notes, record];
+				} else {
+					// record = await pocketbase.collection('notes').create({
+					// 	title,
+					// 	note: encryptedNote,
+					// 	user_id: $currentUser?.id,
+					// 	folder_id: $fileOrFolderInFocus.id
+					// });
+					record = {
+						id: nanoid(),
+						title,
+						note: encryptedNote,
+						user_id: $currentUser?.id,
+						folder_id: $fileOrFolderInFocus.id,
+						created: new Date().toISOString(),
+						updated: new Date().toISOString()
+					};
+					await notesdb.notes.add(record);
 
-					$notes = [...$notes, record];
+					// await pocketbase.collection('folders').update($fileOrFolderInFocus.id, {
+					// 	notes: $folders.find((f) => f.id === $fileOrFolderInFocus.id)?.notes
+					// 		? [...$folders.find((f) => f.id === $fileOrFolderInFocus.id)?.notes, record.id]
+					// 		: [record.id]
+					// });
+
+					// notesdb.folders.update($fileOrFolderInFocus.id, {
+					// 	notes: $folders.find((f) => f.id === $fileOrFolderInFocus.id)?.notes
+					// 		? [...$folders.find((f) => f.id === $fileOrFolderInFocus.id)?.notes, record.id]
+					// 		: [record.id]
+					// });
+
+					// $notes = [...$notes, record];
 				}
 
 				// $fileOrFolderInFocus = {
@@ -122,14 +164,22 @@
 		<button
 			title="Create new folder"
 			on:click={async () => {
-				const name = `Folder #${$folders.length + 1}`;
+				const name = `Folder #${(await notesdb.folders.count()) + 1}`;
 
-				const record = await pocketbase.collection('folders').create({
+				// const record = await pocketbase.collection('folders').create({
+				// 	name,
+				// 	user_id: $currentUser?.id
+				// });
+				const record = {
+					id: nanoid(),
 					name,
-					user_id: $currentUser?.id
-				});
+					user_id: $currentUser?.id,
+					created: new Date().toISOString(),
+					updated: new Date().toISOString()
+				};
+				await notesdb.folders.add(record);
 
-				$folders = [...$folders, record];
+				// $folders = [...$folders, record];
 			}}
 		>
 			<FolderAdd />
@@ -139,7 +189,7 @@
 		<hr class="border-t-[1px] border-gray-100 my-5" />
 
 		<div class="flex flex-col gap-1 list-decimal">
-			{#each $folders as folder (folder.id)}
+			{#each folders as folder (folder.id)}
 				<Folder {folder} />
 			{/each}
 			<section
@@ -166,19 +216,22 @@
 					files = items;
 
 					if (info.trigger === 'droppedIntoZone') {
-						$notes = $notes.map((n) => {
-							if (items.find((i) => i.id === n.id)) {
-								return { ...n, folder_id: '' };
-							}
-							return n;
-						});
+						// $notes = $notes.map((n) => {
+						// 	if (items.find((i) => i.id === n.id)) {
+						// 		return { ...n, folder_id: '' };
+						// 	}
+						// 	return n;
+						// });
 
-						items.map(
-							async (i) =>
-								await pocketbase.collection('notes').update(i.id, {
-									folder_id: ''
-								})
-						);
+						items.map(async (i) => {
+							// await pocketbase.collection('notes').update(i.id, {
+							// 	folder_id: ''
+							// });
+
+							await notesdb.notes.update(i.id, {
+								folder_id: ''
+							});
+						});
 					}
 
 					// console.log('finalize notes ', $notes);
@@ -188,9 +241,9 @@
 					<div class="py-3" />
 				{/if}
 				{#each files as note (note.id)}
-					<div animate:flip={{ duration: 300 }}>
-						<File {note} />
-					</div>
+					<!-- <div animate:flip={{ duration: 300 }}> -->
+					<File {note} />
+					<!-- </div> -->
 				{/each}
 			</section>
 		</div>

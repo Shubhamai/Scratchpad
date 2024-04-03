@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { currentUser, pocketbase } from '$lib';
+	import { currentUser, notesdb } from '$lib';
 	import { dndzone } from 'svelte-dnd-action';
 	import keystore from 'keystore-idb';
 
 	import { stringEncryptAsymmetric } from '$lib/crypto';
-	import { notes, showSidebar, tabs } from '$lib/sidebar';
+	import {  showSidebar, tabs } from '$lib/sidebar';
 	import Add from 'carbon-icons-svelte/lib/Add.svelte';
 	import Cross from 'carbon-icons-svelte/lib/Close.svelte';
 	import OpenPanelRight from 'carbon-icons-svelte/lib/OpenPanelRight.svelte';
@@ -19,7 +19,8 @@
 				...$tabs,
 				{
 					id: $page.params.slug,
-					name: $notes.find((n) => n.id === $page.params.slug)?.title,
+					// name: $notes.find((n) => n.id === $page.params.slug)?.title,
+					name : (await notesdb.notes.get($page.params.slug))?.title || '',
 					active: true
 				}
 			];
@@ -89,7 +90,7 @@
 			>
 		</div>
 	{/each}
-	{#if $tabs.length !== 0}
+	<!-- {#if $tabs.length !== 0}
 		<button
 			title="Create new note"
 			class="flex flex-row items-center gap-2 bg-gray-50 w-fit px-2 rounded-t-sm"
@@ -131,7 +132,7 @@
 		>
 			<Add />
 		</button>
-	{/if}
+	{/if} -->
 	{#if !$showSidebar}
 		<button
 			title="Open sidebar"

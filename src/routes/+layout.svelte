@@ -7,21 +7,23 @@
 	import { onMount } from 'svelte';
 	import { pocketbase } from '$lib';
 
-	export let data;
+	// export let data;
 
 	onMount(async () => {
 		await pocketbase.collection('users').authRefresh();
+
+		// TODO : Don't want to ask the user on first visit
+		await navigator.storage.persist();
 	});
 </script>
 
-<!-- TODO : Entiler frame should be editable, no [enterrr] in the main frame to create new line -->
 <div class="flex flex-col h-screen w-screen">
 	<div class="flex flex-row h-full w-full">
 		<div class="flex-auto flex flex-col">
 			<Header />
 			<slot />
 		</div>
-		<Sidebar {data} />
+		<Sidebar />
 	</div>
 	<Footer />
 </div>

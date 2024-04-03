@@ -1,4 +1,4 @@
-import type { RecordModel } from 'pocketbase';
+import { notesdb, type Notes, type Folders } from '$lib';
 import { writable, type Writable } from 'svelte/store';
 
 type Tab = {
@@ -18,6 +18,8 @@ export const fileOrFolderInFocus : Writable<{
     id: ''
 }); // id of the folder in focus
 
-export const notes : Writable<RecordModel[]> = writable([]); 
-export const folders : Writable<RecordModel[]> = writable([]); 
+
+// export const notes : Writable<Notes[]> = writable([]);
+// export const folders : Writable<Folders[]> = writable([]);
+
 export const showSidebar : Writable<boolean> = writable(true);

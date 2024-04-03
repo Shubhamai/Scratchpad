@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { pocketbase } from '$lib';
+	// import { pocketbase } from '$lib';
 	import { onMount } from 'svelte';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
@@ -27,18 +27,18 @@
 	});
 
 	let timeFromNow: string;
-	onMount(async () => {
-		page.subscribe(async (value) => {
-			if (value.params.slug) {
-				const record = await pocketbase.collection('notes').getOne(value.params.slug);
-				timeFromNow = dayjs(record.updated).fromNow();
+	// onMount(async () => {
+	// 	page.subscribe(async (value) => {
+	// 		if (value.params.slug) {
+	// 			const record = await pocketbase.collection('notes').getOne(value.params.slug);
+	// 			timeFromNow = dayjs(record.updated).fromNow();
 
-				await pocketbase.collection('notes').subscribe(record.id, async ({ action, record }) => {
-					timeFromNow = dayjs(record.updated).fromNow();
-				});
-			}
-		});
-	});
+	// 			await pocketbase.collection('notes').subscribe(record.id, async ({ action, record }) => {
+	// 				timeFromNow = dayjs(record.updated).fromNow();
+	// 			});
+	// 		}
+	// 	});
+	// });
 </script>
 
 <div class="bg-gray-50 border-t-gray-100 border-t-[2px] flex flex-row items-center justify-end">

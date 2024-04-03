@@ -1,10 +1,11 @@
 <script>
 	import { goto } from '$app/navigation';
-	import { currentUser, pocketbase } from '$lib';
+	import { currentUser, notesdb } from '$lib';
 	import { stringEncryptAsymmetric } from '$lib/crypto';
-	import { notes, showSidebar, tabs } from '$lib/sidebar';
+	import { showSidebar, tabs } from '$lib/sidebar';
 	import Add from 'carbon-icons-svelte/lib/Add.svelte';
 	import keystore from 'keystore-idb';
+	import { nanoid } from 'nanoid';
 
 	let feedbackSentMessage = '';
 </script>
@@ -12,13 +13,13 @@
 <svelte:head>
 	<title>ScratchPad</title>
 	<meta name="title" content="ScratchPad" />
-	<meta name="description" content="Your end-to-end encrypted notepad." />
+	<meta name="description" content="Your end-to-end encrypted offline first notepad." />
 	<meta name="keywords" content="scratchpad, notepad, end-to-end, encrypted, notes, scratch, pad" />
 
 	<!-- Open Graph / Facebook -->
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://notes.reddeadlabs.com/" />
-	<meta property="og:title" content="ScratchPad - Your end-to-end encrypted notepad." />
+	<meta property="og:title" content="ScratchPad - Your end-to-end encrypted offline first notepad." />
 	<meta
 		property="og:description"
 		content="Save your notes in a secure way on cloud. Your notes are end-to-end encrypted and only you can access them."
@@ -29,10 +30,10 @@
 	<meta property="twitter:card" content="summary" />
 	<meta property="twitter:url" content="https://notes.reddeadlabs.com/" />
 	<meta name="twitter:site" content="@reddeadlabs" />
-	<meta property="twitter:title" content="ScratchPad - Your end-to-end encrypted notepad." />
+	<meta property="twitter:title" content="ScratchPad - Your end-to-end encrypted offline first notepad." />
 	<meta
 		property="twitter:description"
-		content="Save your notes in a secure way on cloud. Your notes are end-to-end encrypted and only you can access them."
+		content="Save your notes in a secure way on cloud. Your notes are end-to-end encrypted and only you can access them. Works offline and online."
 	/>
 	<meta property="twitter:image" content="/twitter.png" />
 </svelte:head>
@@ -43,14 +44,14 @@
 >
 	<h1 class="text-2xl sm:text-5xl font-black">ScratchPad</h1>
 
-	<h3 class="text-sm sm:text-base text-center">Your end-to-end encrypted notepad.</h3>
+	<h3 class="text-sm sm:text-base text-center">Your end-to-end encrypted offline first notepad.</h3>
 
 	<!-- Dark them in createw note button, like shadcn -->
 	<button
 		title="Create new note"
 		class="bg-black hover:shadow-xl text-white text-xs pl-[8px] pr-[3px] py-[2px] sm:text-base sm:pl-5 sm:pr-4 sm:py-2 rounded-3xl flex flex-row items-center gap-1"
 		on:click={async () => {
-			const title = `Note #${$notes.length + 1}`;
+			const title = `Note #${(await notesdb.notes.count()) + 1}`;
 
 			const ks1 = await keystore.init({ storeName: 'keystore' });
 			const ks2 = await keystore.init({ storeName: 'keystore2' });
@@ -62,13 +63,24 @@
 				exchangeKey2
 			);
 
-			const record = await pocketbase.collection('notes').create({
+			// const record = await pocketbase.collection('notes').create({
+			// 	title,
+			// 	note: cipher,
+			// 	user_id: $currentUser?.id
+			// });
+
+			const record = {
+				id: nanoid(),
 				title,
 				note: cipher,
-				user_id: $currentUser?.id
-			});
+				user_id: $currentUser?.id,
+				created: new Date().toISOString(),
+				updated: new Date().toISOString(),
+				folder_id: ''
+			};
+			await notesdb.notes.add(record);
 
-			$notes = [...$notes, record];
+			// $notes = [...$notes, record];
 
 			$tabs = [
 				...$tabs,
