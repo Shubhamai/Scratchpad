@@ -104,6 +104,7 @@
 		<!-- Delete note button -->
 		<div class="flex flex-row gap-2 invisible group-hover:visible">
 			<button
+				title="rename note"
 				on:click={() => {
 					isEditing = !isEditing;
 				}}
@@ -111,6 +112,7 @@
 				<Edit />
 			</button>
 			<button
+				title="Delete note"
 				on:click={async () => {
 					$notes = $notes.filter((n) => n.id !== note.id);
 

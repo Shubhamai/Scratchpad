@@ -1,5 +1,9 @@
 <script>
-	import { pocketbase } from '$lib';
+	import { goto } from '$app/navigation';
+	import { currentUser, pocketbase } from '$lib';
+	import { stringEncryptAsymmetric } from '$lib/crypto';
+	import { notes, tabs } from '$lib/sidebar';
+	import Add from 'carbon-icons-svelte/lib/Add.svelte';
 
 	let feedbackSentMessage = '';
 </script>
@@ -8,39 +12,43 @@
 	<title>Home</title>
 </svelte:head>
 
-<div class="p-4 justify-center items-center mx-auto my-auto text-sm sm:text-sm md:text-base">
-	This is a temporary notepad, all the data will be stored encrypted in a database with end-to-end
-	encryption. The data will be automatically deleted if left inactive for 60 days.
+<div
+	class="flex flex-col justify-center items-center gap-4 mx-auto my-auto text-sm sm:text-sm md:text-base"
+>
+	<h1 class="text-5xl font-black">ScratchPad</h1>
 
-	<!-- <br /><br />
-	To save your data permanently, consider setting up username and password in the settings. -->
+	<h3 class="text-base">An end-to-end encrypted notepad.</h3>
 
-	<br /><br />
-	The project is currently being developed day by day, so expect bugs and missing features.
-	<br /><br />
+	<button
+		title="Create new note"
+		class="bg-slate-100 shadow-md hover:bg-slate-200 hover:border-slate-200 px-2 py-1 rounded-md flex flex-row items-center gap-1"
+		on:click={async () => {
+			const title = `Note #${$notes.length + 1}`;
 
-	Roadmap <br />
-	- End to end encryption<br />
-	- Split windows. Drag and drop notes in split windows.<br />
-	- Saving data permanently with accounts.<br />
-	- Password Protected files & directories<br />
-	- Drag and drop files in sidebar<br />
-	- Versoning<br />
-	- Sharing & Export Data<br />
-	<div class="flex flex-row gap-2 items-center">
-		- Send us your ideas & feedback here : <form
-			on:submit|preventDefault={async (e) => {
-				await pocketbase.collection('feedback').create({
-					feedback: e.target[0].value
-				});
+			const encryptedNote = stringEncryptAsymmetric(
+				localStorage.getItem('priv') || '',
+				{ key: localStorage.getItem('pub') || '' },
+				`# ${title} \n## Subtitle \n\nTo being with..`
+			);
 
-				feedbackSentMessage = 'Feedback sent, thank you :)';
-			}}
-		>
-			<input class="border-2 border-slate-100 rounded-sm" />
-		</form>
-		<h6 class="text-sm font-light italic text-slate-500">
-			{feedbackSentMessage}
-		</h6>
-	</div>
+			const record = await pocketbase.collection('notes').create({
+				title,
+				note: encryptedNote,
+				user_id: $currentUser?.id
+			});
+
+			$notes = [...$notes, record];
+
+			$tabs = [
+				...$tabs,
+				{
+					id: record.id,
+					name: record.title,
+					active: true
+				}
+			];
+
+			await goto(`/${record.id}`);
+		}}>Create Note <Add /></button
+	>
 </div>

@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { currentUser, pocketbase } from '$lib';
+	import { stringEncryptAsymmetric } from '$lib/crypto';
 	import { notes, tabs } from '$lib/sidebar';
+	import Add from 'carbon-icons-svelte/lib/Add.svelte';
 	import Cross from 'carbon-icons-svelte/lib/Close.svelte';
 	import { onMount } from 'svelte';
 
 	onMount(async () => {
-		
 		if ($page.params.slug) {
 			$tabs = [
 				...$tabs,
@@ -17,15 +19,50 @@
 				}
 			];
 		}
-		
 	});
-
-
 </script>
 
 <div class="bg-slate-200 flex flex-row gap-[2px]">
 	{#if $tabs.length === 0}
-		<div class="w-full px-2 text-center">Notes</div>
+		<div class="flex flex-row w-full justify-between items-center">
+			<button
+				title="Create new note"
+				class="flex flex-row items-center gap-2 bg-slate-100 w-fit px-2 rounded-t-sm"
+				on:click={async () => {
+					const title = `Note #${$notes.length + 1}`;
+
+					const encryptedNote = stringEncryptAsymmetric(
+						localStorage.getItem('priv') || '',
+						{ key: localStorage.getItem('pub') || '' },
+						`# ${title} \n## Subtitle \n\nTo being with..`
+					);
+
+					const record = await pocketbase.collection('notes').create({
+						title,
+						note: encryptedNote,
+						user_id: $currentUser?.id
+					});
+
+					$notes = [...$notes, record];
+
+					$tabs = [
+						...$tabs,
+						{
+							id: record.id,
+							name: record.title,
+							active: true
+						}
+					];
+
+					await goto(`/${record.id}`);
+				}}
+			>
+				Create Note
+				<Add />
+			</button>
+			<div class="px-2 text-center text-sm">Scratchpad</div>
+			<div class="px-12" />
+		</div>
 	{/if}
 	{#each $tabs as tab (tab.id)}
 		<div
@@ -48,6 +85,7 @@
 			>
 			<!-- Remove tab button -->
 			<button
+				title="Close the tab"
 				on:click={async () => {
 					$tabs = $tabs.filter((t) => t.id !== tab.id);
 

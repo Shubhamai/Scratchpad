@@ -44,6 +44,7 @@
 
 		<div class="flex flex-row gap-2 invisible group-hover:visible">
 			<button
+				title="delete the folder and all its notes"
 				on:click={async () => {
 					$folders = $folders.filter((n) => n.id !== folder.id);
 

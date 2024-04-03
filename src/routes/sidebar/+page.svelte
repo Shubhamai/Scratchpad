@@ -3,10 +3,12 @@
 	import FolderAdd from 'carbon-icons-svelte/lib/FolderAdd.svelte';
 	import { currentUser, pocketbase } from '$lib';
 
-	import { fileOrFolderInFocus, notes, folders } from '$lib/sidebar';
+	import { fileOrFolderInFocus, notes, folders, tabs } from '$lib/sidebar';
 
 	import Folder from './Folder.svelte';
 	import File from './File.svelte';
+	import { goto } from '$app/navigation';
+	import { stringEncryptAsymmetric } from '$lib/crypto';
 
 	export let data;
 
@@ -37,19 +39,30 @@
 >
 	<section class="flex flex-row place-content-end gap-2 px-4">
 		<button
+			title="Create new note"
 			on:click={async () => {
+				let record;
+
+				const title = `Note #${$notes.length + 1}`;
+
+				const encryptedNote = stringEncryptAsymmetric(
+					localStorage.getItem('priv') || '',
+					{ key: localStorage.getItem('pub') || '' },
+					`# ${title} \n## Subtitle \n\nTo being with..`
+				);
+
 				if ($fileOrFolderInFocus.type === 'file') {
-					const record = await pocketbase.collection('notes').create({
-						title: 'New File',
-						note: '',
+					record = await pocketbase.collection('notes').create({
+						title,
+						note: encryptedNote,
 						user_id: $currentUser?.id
 					});
 
 					$notes = [...$notes, record];
 				} else {
-					const record = await pocketbase.collection('notes').create({
-						title: 'New File',
-						note: '',
+					record = await pocketbase.collection('notes').create({
+						title,
+						note: encryptedNote,
 						user_id: $currentUser?.id,
 						folder_id: $fileOrFolderInFocus.id
 					});
@@ -62,12 +75,34 @@
 
 					$notes = [...$notes, record];
 				}
+
+				$fileOrFolderInFocus = {
+					type: 'file',
+					id: record.id
+				};
+
+				$tabs = $tabs.map((t) => {
+					return { ...t, active: false };
+				});
+				$tabs = [
+					...$tabs,
+					{
+						id: record.id,
+						name: record.title,
+						active: true
+					}
+				];
+
+				await goto(`/${record.id}`);
 			}}><DocumentAdd /></button
 		>
 		<button
+			title="Create new folder"
 			on:click={async () => {
+				const name = `Folder #${$folders.length + 1}`;
+
 				const record = await pocketbase.collection('folders').create({
-					name: 'New Folder',
+					name,
 					user_id: $currentUser?.id
 				});
 
