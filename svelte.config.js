@@ -1,4 +1,6 @@
-import adapter from "svelte-adapter-bun";
+// import adapter from "@sveltejs/adapter-auto";
+import adapter from "svelte-adapter-bun"; // NOTE: bun doesn't seems to work in vercel
+
 import { vitePreprocess } from '@sveltejs/kit/vite';
 import cspDirectives from './csp-directives.mjs';
 
