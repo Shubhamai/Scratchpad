@@ -9,17 +9,16 @@
 
 	export let note: any;
 	let isEditing = false;
-
 </script>
 
 <div
 	class={`flex flex-row items-center gap-1 ${
-		note.id === $page.params.slug && note.id === $fileOrFolderInFocus.id
+		note.id === $page.params.slug && $fileOrFolderInFocus.type === 'file'
 			? 'bg-slate-200'
 			: 'bg-slate-100'
 	} rounded-md pr-2`}
 >
-	<Delete class="invisible"/>
+	<Delete class="invisible" />
 	<div
 		class={`group hover:underline flex flex-row justify-between text-sm py-1 w-full text-left rounded-sm`}
 	>

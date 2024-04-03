@@ -6,11 +6,19 @@
 	import Footer from './footer/Footer.svelte';
 	import { onMount } from 'svelte';
 	import { pocketbase } from '$lib';
+	import { generatePublicPrivateKeyPair } from '$lib/crypto';
 
 	export let data;
 
 	onMount(async () => {
 		await pocketbase.collection('users').authRefresh();
+
+		if (!localStorage.getItem('pub') || !localStorage.getItem('priv')) {
+			const keypair = generatePublicPrivateKeyPair();
+			localStorage.setItem('pub', keypair.publicKey);
+			localStorage.setItem('priv', keypair.privateKey);
+		}
+
 	});
 </script>
 

@@ -4,6 +4,10 @@
 	let feedbackSentMessage = '';
 </script>
 
+<svelte:head>
+	<title>Home</title>
+</svelte:head>
+
 <div class="p-4 justify-center items-center mx-auto my-auto text-sm sm:text-sm md:text-base">
 	This is a temporary notepad, all the data will be stored encrypted in a database with end-to-end
 	encryption. The data will be automatically deleted if left inactive for 60 days.
@@ -19,6 +23,7 @@
 	- End to end encryption<br />
 	- Split windows. Drag and drop notes in split windows.<br />
 	- Saving data permanently with accounts.<br />
+	- Password Protected files & directories<br />
 	- Drag and drop files in sidebar<br />
 	- Versoning<br />
 	- Sharing & Export Data<br />
