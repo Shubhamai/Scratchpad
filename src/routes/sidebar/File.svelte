@@ -3,6 +3,7 @@
 	import Edit from 'carbon-icons-svelte/lib/Edit.svelte';
 	import Checkmark from 'carbon-icons-svelte/lib/Checkmark.svelte';
 	import Close from 'carbon-icons-svelte/lib/Close.svelte';
+	import Draggable from 'carbon-icons-svelte/lib/Draggable.svelte';
 
 	import { fileOrFolderInFocus, tabs, notes } from '$lib/sidebar';
 	import { pocketbase } from '$lib';
@@ -35,11 +36,11 @@
 </script>
 
 <div
-	class={`flex flex-row items-center gap-1 ${
+	class={`group flex flex-row items-center gap-1 ${
 		note.id === $page.params.slug && $fileOrFolderInFocus.type === 'file' ? 'bg-gray-100' : ''
 	} rounded-md pr-2`}
 >
-	<Delete class="invisible" />
+	<Draggable class="invisible group-hover:visible stroke-gray-50" />
 	<div
 		class={`group hover:underline flex flex-row justify-between text-sm py-1 w-full text-left rounded-sm `}
 	>
