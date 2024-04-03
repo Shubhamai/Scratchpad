@@ -1,11 +1,14 @@
 <script lang="ts">
 	import '../app.css';
+	import '../fonts.css';
 
 	import Header from './header/Header.svelte';
-	import Sidebar from './sidebar/Sidebar.svelte';
+	import Sidebar from './sidebar/+page.svelte';
 	import Footer from './footer/Footer.svelte';
 	import { onMount } from 'svelte';
 	import { pocketbase } from '$lib';
+
+	export let data;
 
 	onMount(async () => {
 		await pocketbase.collection('users').authRefresh();
@@ -19,7 +22,7 @@
 			<Header />
 			<slot />
 		</div>
-		<Sidebar />
+		<Sidebar {data} />
 	</div>
 	<Footer />
 </div>

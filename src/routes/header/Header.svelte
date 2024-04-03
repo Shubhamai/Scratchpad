@@ -1,7 +1,26 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { tabs } from '$lib/tabs';
+	import { page } from '$app/stores';
+	import { notes, tabs } from '$lib/sidebar';
 	import Cross from 'carbon-icons-svelte/lib/Close.svelte';
+	import { onMount } from 'svelte';
+
+	onMount(async () => {
+		
+		if ($page.params.slug) {
+			$tabs = [
+				...$tabs,
+				{
+					id: $page.params.slug,
+					name: $notes.find((n) => n.id === $page.params.slug)?.title,
+					active: true
+				}
+			];
+		}
+		
+	});
+
+
 </script>
 
 <div class="bg-slate-200 flex flex-row gap-[2px]">
