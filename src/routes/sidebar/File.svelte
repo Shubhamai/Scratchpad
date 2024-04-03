@@ -15,20 +15,9 @@
 
 	let noteTitle = note.title;
 	const changeFileName = async () => {
-		// pocketbase.collection('notes').update(note.id, {
-		// 	title: noteTitle
-		// });
-
 		await notesdb.notes.update(note.id, {
 			title: noteTitle
 		});
-
-		// $notes = $notes.map((n) => {
-		// 	if (n.id === note.id) {
-		// 		return { ...n, title: noteTitle };
-		// 	}
-		// 	return n;
-		// });
 
 		$tabs = $tabs.map((t) => {
 			if (t.id === note.id) {
@@ -136,9 +125,6 @@
 				<button
 					title="Delete note"
 					on:click={async () => {
-						// $notes = $notes.filter((n) => n.id !== note.id);
-
-						// pocketbase.collection('notes').delete(note.id);
 						await notesdb.notes.delete(note.id);
 
 						// if the tab is active, close it

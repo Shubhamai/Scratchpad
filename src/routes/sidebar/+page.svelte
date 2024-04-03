@@ -2,7 +2,7 @@
 	import DocumentAdd from 'carbon-icons-svelte/lib/DocumentAdd.svelte';
 	import FolderAdd from 'carbon-icons-svelte/lib/FolderAdd.svelte';
 	import OpenPanelRight from 'carbon-icons-svelte/lib/OpenPanelRight.svelte';
-	import { currentUser, notesdb } from '$lib';
+	import { currentUser, notesdb, pocketbase, type Folders, type Notes } from '$lib';
 	import { dndzone } from 'svelte-dnd-action';
 	import { flip } from 'svelte/animate';
 	import { fileOrFolderInFocus, tabs, showSidebar } from '$lib/sidebar';
@@ -13,25 +13,57 @@
 	import { goto } from '$app/navigation';
 	import { nanoid } from 'nanoid';
 	import { liveQuery } from 'dexie';
+	import { compareArrays } from '$lib/utils';
 
-	// export let data;
+	let files: Notes[] = [];
+	let folders: Folders[] = [];
+	let filteredFiles: Notes[] = [];
 
-	let files: any[] = [];
-	let folders: any[] = [];
-	liveQuery(() => notesdb.notes.filter((n) => !n.folder_id).toArray()).subscribe((n) => {
-		files = n;
+	// TODO : This shouldn't be necessary
+	let firstRunNotes = true;
+	let firstRunFolders = true;
 
-		// $notes = n;
+	liveQuery(() => notesdb.notes.toArray()).subscribe((latestNotes) => {
+		const comparisonResults = compareArrays(files, latestNotes);
 
-		// console.log('notes ', $notes);
+		files = latestNotes;
+		filteredFiles = latestNotes.filter((n) => !n.folder_id);
+
+		if (firstRunNotes) {
+			firstRunNotes = false;
+			return;
+		}
+
+		comparisonResults.missingInNew.map(async (f) => {
+			await pocketbase.collection('notes').delete(f.id);
+		});
+		comparisonResults.missingInOld.map(async (f) => {
+			await pocketbase.collection('notes').create(f);
+		});
+		comparisonResults.updated.map(async (f) => {
+			await pocketbase.collection('notes').update(f.new.id, f.new);
+		});
 	});
 
-	liveQuery(() => notesdb.folders.toArray()).subscribe((n) => {
-		folders = n;
+	liveQuery(() => notesdb.folders.toArray()).subscribe((latestFolders) => {
+		const comparisonResults = compareArrays(folders, latestFolders);
 
-		// $folders = n;
+		folders = latestFolders;
 
-		// console.log('folders ', $folders);
+		if (firstRunFolders) {
+			firstRunFolders = false;
+			return;
+		}
+
+		comparisonResults.missingInNew.map(async (f) => {
+			await pocketbase.collection('folders').delete(f.id);
+		});
+		comparisonResults.missingInOld.map(async (f) => {
+			await pocketbase.collection('folders').create(f);
+		});
+		comparisonResults.updated.map(async (f) => {
+			await pocketbase.collection('folders').update(f.new.id, f.new);
+		});
 	});
 
 	const removeFocus = (e: any) => {
@@ -42,12 +74,6 @@
 			};
 		}
 	};
-
-	// let files = $notes.filter((n) => !n.folder_id);
-
-	// notes.subscribe((n) => {
-	// 	files = n.filter((n) => !n.folder_id);
-	// });
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -91,13 +117,8 @@
 				);
 
 				if ($fileOrFolderInFocus.type === 'file') {
-					// record = await pocketbase.collection('notes').create({
-					// 	title,
-					// 	note: encryptedNote,
-					// 	user_id: $currentUser?.id
-					// });
 					record = {
-						id: nanoid(),
+						id: nanoid(15),
 						title,
 						note: encryptedNote,
 						user_id: $currentUser?.id,
@@ -106,17 +127,9 @@
 						folder_id: ''
 					};
 					await notesdb.notes.add(record);
-
-					// $notes = [...$notes, record];
 				} else {
-					// record = await pocketbase.collection('notes').create({
-					// 	title,
-					// 	note: encryptedNote,
-					// 	user_id: $currentUser?.id,
-					// 	folder_id: $fileOrFolderInFocus.id
-					// });
 					record = {
-						id: nanoid(),
+						id: nanoid(15),
 						title,
 						note: encryptedNote,
 						user_id: $currentUser?.id,
@@ -125,26 +138,7 @@
 						updated: new Date().toISOString()
 					};
 					await notesdb.notes.add(record);
-
-					// await pocketbase.collection('folders').update($fileOrFolderInFocus.id, {
-					// 	notes: $folders.find((f) => f.id === $fileOrFolderInFocus.id)?.notes
-					// 		? [...$folders.find((f) => f.id === $fileOrFolderInFocus.id)?.notes, record.id]
-					// 		: [record.id]
-					// });
-
-					// notesdb.folders.update($fileOrFolderInFocus.id, {
-					// 	notes: $folders.find((f) => f.id === $fileOrFolderInFocus.id)?.notes
-					// 		? [...$folders.find((f) => f.id === $fileOrFolderInFocus.id)?.notes, record.id]
-					// 		: [record.id]
-					// });
-
-					// $notes = [...$notes, record];
 				}
-
-				// $fileOrFolderInFocus = {
-				// 	type: 'file',
-				// 	id: record.id
-				// };
 
 				$tabs = $tabs.map((t) => {
 					return { ...t, active: false };
@@ -166,20 +160,14 @@
 			on:click={async () => {
 				const name = `Folder #${(await notesdb.folders.count()) + 1}`;
 
-				// const record = await pocketbase.collection('folders').create({
-				// 	name,
-				// 	user_id: $currentUser?.id
-				// });
 				const record = {
-					id: nanoid(),
+					id: nanoid(15),
 					name,
 					user_id: $currentUser?.id,
 					created: new Date().toISOString(),
 					updated: new Date().toISOString()
 				};
 				await notesdb.folders.add(record);
-
-				// $folders = [...$folders, record];
 			}}
 		>
 			<FolderAdd />
@@ -195,7 +183,7 @@
 			<section
 				class="rounded-md"
 				use:dndzone={{
-					items: files,
+					items: filteredFiles,
 					type: 'files',
 					dropTargetStyle: {},
 					dropTargetClasses: ['bg-gray-300']
@@ -203,47 +191,27 @@
 				on:consider={(e) => {
 					const { items, info } = e.detail;
 
-					// console.log('consider ', info.trigger);
-					// console.log('consider items ', items);
-
-					files = items;
+					filteredFiles = items;
 				}}
 				on:finalize={async (e) => {
 					const { items, info } = e.detail;
 
-					// console.log('finalize ', info.trigger);
-
-					files = items;
+					filteredFiles = items;
 
 					if (info.trigger === 'droppedIntoZone') {
-						// $notes = $notes.map((n) => {
-						// 	if (items.find((i) => i.id === n.id)) {
-						// 		return { ...n, folder_id: '' };
-						// 	}
-						// 	return n;
-						// });
-
 						items.map(async (i) => {
-							// await pocketbase.collection('notes').update(i.id, {
-							// 	folder_id: ''
-							// });
-
 							await notesdb.notes.update(i.id, {
 								folder_id: ''
 							});
 						});
 					}
-
-					// console.log('finalize notes ', $notes);
 				}}
 			>
-				{#if files.length === 0}
+				{#if filteredFiles.length === 0}
 					<div class="py-3" />
 				{/if}
-				{#each files as note (note.id)}
-					<!-- <div animate:flip={{ duration: 300 }}> -->
+				{#each filteredFiles as note (note.id)}
 					<File {note} />
-					<!-- </div> -->
 				{/each}
 			</section>
 		</div>

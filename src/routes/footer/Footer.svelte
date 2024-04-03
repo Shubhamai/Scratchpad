@@ -39,6 +39,8 @@
 	// 		}
 	// 	});
 	// });
+
+	// TOOD : Able to delete cloud data & disable cloud sync, or change the database link
 </script>
 
 <div class="bg-gray-50 border-t-gray-100 border-t-[2px] flex flex-row items-center justify-end">

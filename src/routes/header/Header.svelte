@@ -3,15 +3,15 @@
 	import { page } from '$app/stores';
 	import { currentUser, notesdb } from '$lib';
 	import { dndzone } from 'svelte-dnd-action';
-	import keystore from 'keystore-idb';
+	import { nanoid } from 'nanoid';
 
-	import { stringEncryptAsymmetric } from '$lib/crypto';
-	import {  showSidebar, tabs } from '$lib/sidebar';
+	import { showSidebar, tabs } from '$lib/sidebar';
 	import Add from 'carbon-icons-svelte/lib/Add.svelte';
 	import Cross from 'carbon-icons-svelte/lib/Close.svelte';
 	import OpenPanelRight from 'carbon-icons-svelte/lib/OpenPanelRight.svelte';
 
 	import { onMount } from 'svelte';
+	import keystore from 'keystore-idb';
 
 	onMount(async () => {
 		if ($page.params.slug) {
@@ -19,8 +19,7 @@
 				...$tabs,
 				{
 					id: $page.params.slug,
-					// name: $notes.find((n) => n.id === $page.params.slug)?.title,
-					name : (await notesdb.notes.get($page.params.slug))?.title || '',
+					name: (await notesdb.notes.get($page.params.slug))?.title || '',
 					active: true
 				}
 			];
@@ -90,12 +89,12 @@
 			>
 		</div>
 	{/each}
-	<!-- {#if $tabs.length !== 0}
+	{#if $tabs.length !== 0}
 		<button
 			title="Create new note"
 			class="flex flex-row items-center gap-2 bg-gray-50 w-fit px-2 rounded-t-sm"
 			on:click={async () => {
-				const title = `Note #${$notes.length + 1}`;
+				const title = `Note #${(await notesdb.notes.count()) + 1}`;
 
 				const ks1 = await keystore.init({ storeName: 'keystore' });
 				const ks2 = await keystore.init({ storeName: 'keystore2' });
@@ -107,13 +106,16 @@
 					exchangeKey2
 				);
 
-				const record = await pocketbase.collection('notes').create({
+				const record = {
+					id: nanoid(15),
 					title,
 					note: encryptedNote,
-					user_id: $currentUser?.id
-				});
-
-				$notes = [...$notes, record];
+					user_id: $currentUser?.id,
+					created: new Date().toISOString(),
+					updated: new Date().toISOString(),
+					folder_id: ''
+				};
+				await notesdb.notes.add(record);
 
 				// set all tabs to inactive
 				$tabs = $tabs.map((t) => ({ ...t, active: false }));
@@ -132,7 +134,7 @@
 		>
 			<Add />
 		</button>
-	{/if} -->
+	{/if}
 	{#if !$showSidebar}
 		<button
 			title="Open sidebar"

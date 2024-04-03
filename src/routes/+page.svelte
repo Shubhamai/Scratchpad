@@ -1,7 +1,7 @@
 <script>
 	import { goto } from '$app/navigation';
 	import { currentUser, notesdb } from '$lib';
-	import { stringEncryptAsymmetric } from '$lib/crypto';
+	import { stringEncryptAsymmetric } from '$lib/utils';
 	import { showSidebar, tabs } from '$lib/sidebar';
 	import Add from 'carbon-icons-svelte/lib/Add.svelte';
 	import keystore from 'keystore-idb';
@@ -19,7 +19,10 @@
 	<!-- Open Graph / Facebook -->
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content="https://notes.reddeadlabs.com/" />
-	<meta property="og:title" content="ScratchPad - Your end-to-end encrypted offline first notepad." />
+	<meta
+		property="og:title"
+		content="ScratchPad - Your end-to-end encrypted offline first notepad."
+	/>
 	<meta
 		property="og:description"
 		content="Save your notes in a secure way on cloud. Your notes are end-to-end encrypted and only you can access them."
@@ -30,7 +33,10 @@
 	<meta property="twitter:card" content="summary" />
 	<meta property="twitter:url" content="https://notes.reddeadlabs.com/" />
 	<meta name="twitter:site" content="@reddeadlabs" />
-	<meta property="twitter:title" content="ScratchPad - Your end-to-end encrypted offline first notepad." />
+	<meta
+		property="twitter:title"
+		content="ScratchPad - Your end-to-end encrypted offline first notepad."
+	/>
 	<meta
 		property="twitter:description"
 		content="Save your notes in a secure way on cloud. Your notes are end-to-end encrypted and only you can access them. Works offline and online."
@@ -63,14 +69,8 @@
 				exchangeKey2
 			);
 
-			// const record = await pocketbase.collection('notes').create({
-			// 	title,
-			// 	note: cipher,
-			// 	user_id: $currentUser?.id
-			// });
-
 			const record = {
-				id: nanoid(),
+				id: nanoid(15),
 				title,
 				note: cipher,
 				user_id: $currentUser?.id,
@@ -79,8 +79,6 @@
 				folder_id: ''
 			};
 			await notesdb.notes.add(record);
-
-			// $notes = [...$notes, record];
 
 			$tabs = [
 				...$tabs,

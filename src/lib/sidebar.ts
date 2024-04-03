@@ -19,7 +19,4 @@ export const fileOrFolderInFocus : Writable<{
 }); // id of the folder in focus
 
 
-// export const notes : Writable<Notes[]> = writable([]);
-// export const folders : Writable<Folders[]> = writable([]);
-
 export const showSidebar : Writable<boolean> = writable(true);

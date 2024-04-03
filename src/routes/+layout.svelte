@@ -7,8 +7,6 @@
 	import { onMount } from 'svelte';
 	import { pocketbase } from '$lib';
 
-	// export let data;
-
 	onMount(async () => {
 		await pocketbase.collection('users').authRefresh();
 

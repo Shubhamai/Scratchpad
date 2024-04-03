@@ -2,7 +2,6 @@
 	import CodeMirror from 'svelte-codemirror-editor';
 	import { markdown } from '@codemirror/lang-markdown';
 	import { notesdb } from '$lib';
-	import { stringEncryptAsymmetric, stringDecryptAsymmetric } from '$lib/crypto';
 	import { onMount } from 'svelte';
 	import { afterNavigate, beforeNavigate, goto, onNavigate } from '$app/navigation';
 	import { showSidebar } from '$lib/sidebar.js';
@@ -11,7 +10,6 @@
 	import { liveQuery } from 'dexie';
 	import { page } from '$app/stores';
 
-	// export let data;
 	let data = liveQuery(() => notesdb.notes.where('id').equals($page.params.slug).first());
 
 	let note = '';
@@ -20,7 +18,6 @@
 	let ks2: null | KeyStore;
 
 	afterNavigate(async () => {
-		// $data = await notesdb.notes.where('id').equals($page.params.slug).first();
 		data = liveQuery(() => notesdb.notes.where('id').equals($page.params.slug).first());
 
 		ks1 = await keystore.init({ storeName: 'keystore' });
@@ -119,8 +116,6 @@
 		}
 		const exchangeKey2 = await ks2.publicExchangeKey();
 		const cipher = await ks1.encrypt(e.detail, exchangeKey2);
-
-		// await pocketbase.collection('notes').update($data?.id, { note: cipher });
 
 		await notesdb.notes.update($data?.id, {
 			note: cipher,

@@ -11,7 +11,6 @@ import {
 export const pocketbase = new PocketBase(PUBLIC_POCKETBASE_URL);
 
 export const currentUser = writable(pocketbase.authStore.model)
-// export const currentUser = writable({id: '123'});
 
 export interface Notes {
     id: string;
@@ -32,8 +31,6 @@ export interface Folders {
 }
 
 class MySubClassedDexie extends Dexie {
-  // 'friends' is added by dexie when declaring the stores()
-  // We just tell the typing system this is the case
   notes!: Table<Notes>; 
   folders!: Table<Folders>;
 

@@ -16,11 +16,6 @@
 	import { liveQuery } from 'dexie';
 
 	export let folder: any;
-	// let files = $notes.filter((n) => n.folder_id === folder.id);
-
-	// notes.subscribe((n) => {
-	// 	files = n.filter((n) => n.folder_id === folder.id);
-	// });
 
 	let files: any[] = [];
 	liveQuery(() => notesdb.notes.toArray()).subscribe((n) => {
@@ -32,20 +27,9 @@
 	let folderName = folder.name;
 
 	const changeFolderName = () => {
-		// pocketbase.collection('folders').update(folder.id, {
-		// 	name: folderName
-		// });
-
 		notesdb.folders.update(folder.id, {
 			name: folderName
 		});
-
-		// $folders = $folders.map((n) => {
-		// 	if (n.id === folder.id) {
-		// 		return { ...n, name: folderName };
-		// 	}
-		// 	return n;
-		// });
 	};
 </script>
 
@@ -114,27 +98,15 @@
 				<button
 					title="delete the folder and all its notes"
 					on:click={async () => {
-						// $folders = $folders.filter((n) => n.id !== folder.id);
-
-						// delete notes from the folders expand.notes array in pocketbase
-						// for (const note of $notes.filter((n) => n.folder_id === folder.id)) {
-						// 	// await pocketbase.collection('notes').delete(note.id);
-						// 	await notesdb.notes.delete(note.id);
-
-						// 	$tabs = $tabs.filter((t) => t.id !== note.id);
-						// }
-
 						const notesList = await notesdb.notes
 							.filter((n) => n.folder_id === folder.id)
 							.toArray();
 						for (const note of notesList) {
-							// await pocketbase.collection('notes').delete(note.id);
 							await notesdb.notes.delete(note.id);
 
 							$tabs = $tabs.filter((t) => t.id !== note.id);
 						}
 
-						// await pocketbase.collection('folders').delete(folder.id);
 						await notesdb.folders.delete(folder.id);
 
 						// if any tab is active, change to the first tab else go to home
@@ -169,37 +141,21 @@
 		on:consider={(e) => {
 			const { items, info } = e.detail;
 
-			// console.log('consider folder ', info.trigger);
 			if (info.trigger === 'draggedEntered') {
 				open = true;
 			}
-			// else if (info.trigger === 'draggedLeft') {
-			// 	open = false;
-			// }
 
 			files = items;
 		}}
 		on:finalize={async (e) => {
 			const { items, info } = e.detail;
-			// console.log('finalize folder ', info.trigger);
 
 			if (info.trigger === 'droppedIntoZone') {
-				// $notes = $notes.map((n) => {
-				// 	if (items.find((i) => i.id === n.id)) {
-				// 		return { ...n, folder_id: folder.id };
-				// 	}
-				// 	return n;
-				// });
-
 				items.map(async (i) => {
-					// await pocketbase.collection('notes').update(i.id, {
-					// 	folder_id: folder.id
-					// });
 					await notesdb.notes.update(i.id, {
 						folder_id: folder.id
 					});
 				});
-				// console.log('droppedIntoZone ', $notes);
 			}
 
 			files = items;
