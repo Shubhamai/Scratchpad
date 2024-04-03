@@ -5,7 +5,7 @@ const cspDirectives = {
   'child-src': ["'self'"],
   'connect-src': ["'self'", 'https://notesdb.reddeadlabs.com'],
   'img-src': ["'self'"],
-  'font-src': ["'self'", 'https://fonts.gstatic.com'],
+  'font-src': ["'self'"],
   'form-action': ["'self'"],
   'frame-ancestors': ["'self'"],
   'frame-src': [
@@ -14,7 +14,7 @@ const cspDirectives = {
   'manifest-src': ["'self'"],
   'media-src': ["'self'", 'data:'],
   'object-src': ["'none'"],
-  'style-src': ["'self'", 'https://fonts.googleapis.com'],
+  'style-src': ["'self'"],
   'default-src': [
     'self',
     ...(rootDomain ? [rootDomain, `ws://${rootDomain}`] : []),

@@ -21,11 +21,11 @@ export async function handle({ event, resolve }) {
 
     // TODO : Is it in the right place ?
     if (!event.locals.pb.authStore.isValid) {
-        const username = nanoid(5);
-        const password = nanoid(10);
+        const username = nanoid(10);
+        const password = nanoid(12);
         
-
-        await event.locals.pb.collection('users').create({
+		
+		await event.locals.pb.collection('users').create({
             "username": username,
             "password": password,
             "passwordConfirm": password,
