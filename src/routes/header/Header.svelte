@@ -22,12 +22,13 @@
 	});
 </script>
 
-<div class="bg-slate-200 flex flex-row gap-[2px]">
+<!-- border-b-gray-100 border-b-[1px] -->
+<div class="bg-gray-50 flex flex-row gap-[2px]">
 	{#if $tabs.length === 0}
 		<div class="flex flex-row w-full justify-between items-center">
 			<button
 				title="Create new note"
-				class="flex flex-row items-center gap-2 bg-slate-100 w-fit px-2 rounded-t-sm"
+				class="flex flex-row items-center gap-2 bg-slate-100 w-fit px-2"
 				on:click={async () => {
 					const title = `Note #${$notes.length + 1}`;
 
@@ -58,7 +59,7 @@
 				}}
 			>
 				Create Note
-				<Add />
+				<Add size={20} />
 			</button>
 			<div class="px-2 text-center text-sm">Scratchpad</div>
 			<div class="px-12" />
@@ -67,7 +68,7 @@
 	{#each $tabs as tab (tab.id)}
 		<div
 			class={`flex flex-row items-center gap-2 ${
-				tab.active ? 'bg-white' : 'bg-slate-100'
+				tab.active ? 'bg-white' : 'bg-gray-100'
 			} w-fit px-2 rounded-t-sm`}
 		>
 			<button
@@ -108,4 +109,43 @@
 			>
 		</div>
 	{/each}
+	{#if $tabs.length !== 0}
+		<button
+			title="Create new note"
+			class="flex flex-row items-center gap-2 bg-gray-50 w-fit px-2 rounded-t-sm"
+			on:click={async () => {
+				const title = `Note #${$notes.length + 1}`;
+
+				const encryptedNote = stringEncryptAsymmetric(
+					localStorage.getItem('priv') || '',
+					{ key: localStorage.getItem('pub') || '' },
+					`# ${title} \n## Subtitle \n\nTo being with..`
+				);
+
+				const record = await pocketbase.collection('notes').create({
+					title,
+					note: encryptedNote,
+					user_id: $currentUser?.id
+				});
+
+				$notes = [...$notes, record];
+
+				// set all tabs to inactive
+				$tabs = $tabs.map((t) => ({ ...t, active: false }));
+
+				$tabs = [
+					...$tabs,
+					{
+						id: record.id,
+						name: record.title,
+						active: true
+					}
+				];
+
+				await goto(`/${record.id}`);
+			}}
+		>
+			<Add />
+		</button>
+	{/if}
 </div>

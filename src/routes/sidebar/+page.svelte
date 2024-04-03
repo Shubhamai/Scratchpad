@@ -27,7 +27,7 @@
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
-	class="flex-none py-8 px-2 w-52 h-full overflow-y-auto bg-slate-100 items-list overflow-x-clip"
+	class="bg-gray-50 flex-none py-8 px-2 w-52 h-full overflow-y-auto border-l-[1px] border-l-gray-100 items-list overflow-x-clip"
 	on:click={removeFocus}
 	on:keydown={(e) => {
 		if (e.key === 'Escape') {
@@ -114,7 +114,7 @@
 		</button>
 	</section>
 	<section class="px-2">
-		<hr class="border-slate-300 my-4" />
+		<hr class="border-t-[1px] border-gray-100 my-5" />
 
 		<div class="flex flex-col gap-1 list-decimal">
 			{#each $folders as folder (folder.id)}

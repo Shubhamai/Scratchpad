@@ -15,7 +15,7 @@
 
 <div
 	class={`flex flex-row items-center gap-1 rounded-md pr-2 ${
-		$fileOrFolderInFocus.id === folder.id ? 'bg-slate-200' : 'bg-slate-100'
+		$fileOrFolderInFocus.id === folder.id ? 'bg-gray-100' : ''
 	}`}
 >
 	<!-- <Delete class="" /> -->

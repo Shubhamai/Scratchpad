@@ -41,9 +41,9 @@
 	});
 </script>
 
-<div class="bg-slate-200">
+<div class="bg-gray-50 border-t-gray-100 border-t-[2px] flex flex-row items-center justify-end">
 	{#if $page.params.slug && timeFromNow}
-		<p class="text-right pr-56">{timeFromNow}</p>
+		<p class="text-right pr-56 text-sm">{timeFromNow}</p>
 	{:else}
 		<p>&nbsp;</p>{/if}
 </div>

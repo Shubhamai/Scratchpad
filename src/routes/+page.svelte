@@ -19,9 +19,10 @@
 
 	<h3 class="text-base">Your end-to-end encrypted notepad.</h3>
 
+	<!-- Dark them in createw note button, like shadcn -->
 	<button
 		title="Create new note"
-		class="bg-slate-100 shadow-md hover:bg-slate-200 hover:border-slate-200 px-2 py-1 rounded-md flex flex-row items-center gap-1"
+		class="bg-black hover:shadow-xl text-white pl-5 pr-4 py-2 rounded-3xl flex flex-row items-center gap-1"
 		on:click={async () => {
 			const title = `Note #${$notes.length + 1}`;
 
@@ -49,6 +50,6 @@
 			];
 
 			await goto(`/${record.id}`);
-		}}>Create Note <Add /></button
+		}}>Create Note <Add size={24} /></button
 	>
 </div>
