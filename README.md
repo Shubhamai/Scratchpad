@@ -1,7 +1,7 @@
 # Scratchpad
 
 <kbd>
-  <img src="static/icon512.png">
+  <img src="static/icon512.png" width="200">
 </kbd>
 
 This is a simple fully offline notes application built with Svelte and using browser storage. pocketbase for online data storage.
