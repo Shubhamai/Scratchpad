@@ -1,10 +1,14 @@
 // src/hooks.server.js
 import { nanoid } from 'nanoid';
 import PocketBase from 'pocketbase';
+import {
+    PUBLIC_POCKETBASE_URL
+} from '$env/static/public';
+
 
 /** @type {import('@sveltejs/kit').Handle} */
 export async function handle({ event, resolve }) {
-    event.locals.pb = new PocketBase('http://127.0.0.1:8090');
+    event.locals.pb = new PocketBase(PUBLIC_POCKETBASE_URL);
 
     // load the store data from the request cookie string
     event.locals.pb.authStore.loadFromCookie(event.request.headers.get('cookie') || '');
