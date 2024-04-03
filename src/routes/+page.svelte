@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { currentUser, pocketbase } from '$lib';
 	import { stringEncryptAsymmetric } from '$lib/crypto';
-	import { notes, tabs } from '$lib/sidebar';
+	import { notes, showSidebar, tabs } from '$lib/sidebar';
 	import Add from 'carbon-icons-svelte/lib/Add.svelte';
 
 	let feedbackSentMessage = '';
@@ -52,6 +52,8 @@
 			];
 
 			await goto(`/${record.id}`);
+
+			$showSidebar = true;
 		}}>Create Note <Add size={24} /></button
 	>
 </div>

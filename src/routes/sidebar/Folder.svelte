@@ -61,7 +61,7 @@
 			/>
 		{:else}
 			<button
-				class="text-left w-full"
+				class="text-left w-full truncate text-xs sm:text-base"
 				on:click={async () => {
 					$fileOrFolderInFocus = {
 						type: 'folder',
@@ -74,7 +74,7 @@
 				{folder.name}
 			</button>
 		{/if}
-		<div class="flex flex-row gap-2 invisible group-hover:visible">
+		<div class="flex flex-row gap-1 sm:gap-2 invisible group-hover:visible">
 			{#if isEditing}
 				<button
 					title="Done"

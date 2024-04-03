@@ -23,6 +23,11 @@
 				}
 			];
 		}
+
+		// check if page width in mobile, then hide sidebar
+		if (window.innerWidth < 768) {
+			showSidebar.set(false);
+		}
 	});
 </script>
 
@@ -45,6 +50,7 @@
 			} w-fit px-2 rounded-t-sm`}
 		>
 			<button
+				class="text-xs sm:text-base"
 				on:click={// change to different tab
 				async (e) => {
 					$tabs = $tabs.map((t) => {

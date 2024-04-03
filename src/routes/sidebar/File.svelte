@@ -46,7 +46,7 @@
 	>
 		{#if isEditing}
 			<input
-				class="text-left w-full max-w-full focus:outline-none underline bg-transparent"
+				class="text-left focus:outline-none underline bg-transparent"
 				type="text"
 				bind:value={noteTitle}
 			/>
