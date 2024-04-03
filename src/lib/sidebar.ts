@@ -1,4 +1,3 @@
-import { notesdb, type Notes, type Folders } from '$lib';
 import { writable, type Writable } from 'svelte/store';
 
 type Tab = {

@@ -1,10 +1,10 @@
-import type { Folders, Notes } from "$lib";
+import type { Folder, Note } from "$lib";
 
-export function compareArrays(oldArray: Folders[] | Notes[], newArray: Folders[] | Notes[]) {
+export function compareArrays(oldArray: Folder[] | Note[], newArray: Folder[] | Note[]) {
   const results: {
-    missingInNew: (Folders | Notes)[];
-    missingInOld: (Folders | Notes)[];
-    updated: { old: Folders | Notes; new: Folders | Notes }[];
+    missingInNew: (Folder | Note)[];
+    missingInOld: (Folder | Note)[];
+    updated: { old: Folder | Note; new: Folder | Note }[];
   } = {
     missingInNew: [],
     missingInOld: [],
@@ -13,7 +13,7 @@ export function compareArrays(oldArray: Folders[] | Notes[], newArray: Folders[]
 
   // Using a simple function to generate a unique identifier for each object
   // Assuming each object has a unique 'id' field
-  const getObjectIdentifier = (obj: Notes | Folders) => obj.id;
+  const getObjectIdentifier = (obj: Note | Folder) => obj.id;
 
   const oldMap = new Map();
   oldArray.forEach((obj) => oldMap.set(getObjectIdentifier(obj), obj));

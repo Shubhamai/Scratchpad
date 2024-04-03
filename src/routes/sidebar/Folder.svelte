@@ -9,15 +9,15 @@
 	import { dndzone } from 'svelte-dnd-action';
 	import { flip } from 'svelte/animate';
 
-	import { notesdb } from '$lib';
+	import { notesdb, type Folder, type Note } from '$lib';
 	import { fileOrFolderInFocus, tabs } from '$lib/sidebar';
 	import File from './File.svelte';
 	import { goto } from '$app/navigation';
 	import { liveQuery } from 'dexie';
 
-	export let folder: any;
+	export let folder: Folder;
 
-	let files: any[] = [];
+	let files: Note[] = [];
 	liveQuery(() => notesdb.notes.toArray()).subscribe((n) => {
 		files = n.filter((n) => n.folder_id === folder.id);
 	});

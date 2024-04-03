@@ -2,68 +2,29 @@
 	import DocumentAdd from 'carbon-icons-svelte/lib/DocumentAdd.svelte';
 	import FolderAdd from 'carbon-icons-svelte/lib/FolderAdd.svelte';
 	import OpenPanelRight from 'carbon-icons-svelte/lib/OpenPanelRight.svelte';
-	import { currentUser, notesdb, pocketbase, type Folders, type Notes } from '$lib';
+	import { currentUser, notesdb, pocketbase, type Folder, type Note } from '$lib';
 	import { dndzone } from 'svelte-dnd-action';
 	import { flip } from 'svelte/animate';
 	import { fileOrFolderInFocus, tabs, showSidebar } from '$lib/sidebar';
 	import keystore from 'keystore-idb';
 
-	import Folder from './Folder.svelte';
+	import FolderComponent from './Folder.svelte';
 	import File from './File.svelte';
 	import { goto } from '$app/navigation';
 	import { nanoid } from 'nanoid';
 	import { liveQuery } from 'dexie';
 	import { compareArrays } from '$lib/utils';
 
-	let files: Notes[] = [];
-	let folders: Folders[] = [];
-	let filteredFiles: Notes[] = [];
-
-	// TODO : This shouldn't be necessary
-	let firstRunNotes = true;
-	let firstRunFolders = true;
+	// let files: Note[] = [];
+	let folders: Folder[] = [];
+	let filteredFiles: Note[] = [];
 
 	liveQuery(() => notesdb.notes.toArray()).subscribe((latestNotes) => {
-		const comparisonResults = compareArrays(files, latestNotes);
-
-		files = latestNotes;
 		filteredFiles = latestNotes.filter((n) => !n.folder_id);
-
-		if (firstRunNotes) {
-			firstRunNotes = false;
-			return;
-		}
-
-		comparisonResults.missingInNew.map(async (f) => {
-			await pocketbase.collection('notes').delete(f.id);
-		});
-		comparisonResults.missingInOld.map(async (f) => {
-			await pocketbase.collection('notes').create(f);
-		});
-		comparisonResults.updated.map(async (f) => {
-			await pocketbase.collection('notes').update(f.new.id, f.new);
-		});
 	});
 
 	liveQuery(() => notesdb.folders.toArray()).subscribe((latestFolders) => {
-		const comparisonResults = compareArrays(folders, latestFolders);
-
 		folders = latestFolders;
-
-		if (firstRunFolders) {
-			firstRunFolders = false;
-			return;
-		}
-
-		comparisonResults.missingInNew.map(async (f) => {
-			await pocketbase.collection('folders').delete(f.id);
-		});
-		comparisonResults.missingInOld.map(async (f) => {
-			await pocketbase.collection('folders').create(f);
-		});
-		comparisonResults.updated.map(async (f) => {
-			await pocketbase.collection('folders').update(f.new.id, f.new);
-		});
 	});
 
 	const removeFocus = (e: any) => {
@@ -121,7 +82,6 @@
 						id: nanoid(15),
 						title,
 						note: encryptedNote,
-						user_id: $currentUser?.id,
 						created: new Date().toISOString(),
 						updated: new Date().toISOString(),
 						folder_id: ''
@@ -132,7 +92,6 @@
 						id: nanoid(15),
 						title,
 						note: encryptedNote,
-						user_id: $currentUser?.id,
 						folder_id: $fileOrFolderInFocus.id,
 						created: new Date().toISOString(),
 						updated: new Date().toISOString()
@@ -178,7 +137,7 @@
 
 		<div class="flex flex-col gap-1 list-decimal">
 			{#each folders as folder (folder.id)}
-				<Folder {folder} />
+				<FolderComponent {folder} />
 			{/each}
 			<section
 				class="rounded-md"

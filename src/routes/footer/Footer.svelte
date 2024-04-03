@@ -1,10 +1,13 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	// import { pocketbase } from '$lib';
-	import { onMount } from 'svelte';
+	import { currentUser, notesdb, pocketbase } from '$lib';
+	import { Cloud } from 'carbon-icons-svelte';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import updateLocale from 'dayjs/plugin/updateLocale';
+	import CloudToast from './CloudToast.svelte';
+	import toast, { Toaster } from 'svelte-french-toast';
+
 	dayjs.extend(relativeTime);
 	dayjs.extend(updateLocale);
 
@@ -27,26 +30,45 @@
 	});
 
 	let timeFromNow: string;
-	// onMount(async () => {
-	// 	page.subscribe(async (value) => {
-	// 		if (value.params.slug) {
-	// 			const record = await pocketbase.collection('notes').getOne(value.params.slug);
-	// 			timeFromNow = dayjs(record.updated).fromNow();
+	let isOnline: boolean = window.navigator.onLine ? true : false;
 
-	// 			await pocketbase.collection('notes').subscribe(record.id, async ({ action, record }) => {
-	// 				timeFromNow = dayjs(record.updated).fromNow();
-	// 			});
-	// 		}
-	// 	});
-	// });
+	window.addEventListener('online', async () => {
+		const blob = await notesdb.export({ prettyJson: true });
+
+		const file = new File([blob], 'notesdb.json', {
+			type: 'application/json'
+		});
+
+		const formData = new FormData();
+		formData.append('db', file);
+
+		await pocketbase.collection('sync').update($currentUser?.id, formData);
+
+		isOnline = true;
+	});
+	window.addEventListener('offline', () => (isOnline = false));
 
 	// TOOD : Able to delete cloud data & disable cloud sync, or change the database link
 </script>
 
-<div class="bg-gray-50 border-t-gray-100 border-t-[2px] flex flex-row items-center justify-end">
+<Toaster />
+<div
+	class="bg-gray-50 border-t-gray-100 border-t-[2px] flex flex-row gap-2 items-center justify-end pr-20 sm:pr-52"
+>
+	<button
+		on:click={async () => {
+			toast(CloudToast, { position: 'bottom-right', duration: 5000 });
+			// toast.success('Syncing...');
+		}}><Cloud /></button
+	>
 	{#if $page.params.slug && timeFromNow}
-		<p class="text-right pr-20 sm:pr-56 text-sm">{timeFromNow}</p>
+		<p>{timeFromNow}</p>
 	{:else}
-		<p class="text-right text-sm">&nbsp;</p>
+		<p>&nbsp;</p>
+	{/if}
+	{#if isOnline}
+		<p>Online</p>
+	{:else}
+		<p>Offline</p>
 	{/if}
 </div>

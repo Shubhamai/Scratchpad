@@ -8,8 +8,11 @@
 	import { pocketbase } from '$lib';
 
 	onMount(async () => {
-		await pocketbase.collection('users').authRefresh();
-
+		try {
+			await pocketbase.collection('users').authRefresh();
+		} catch {
+			console.log('No User Found. Data is saved locally.');
+		}
 		// TODO : Don't want to ask the user on first visit
 		await navigator.storage.persist();
 	});

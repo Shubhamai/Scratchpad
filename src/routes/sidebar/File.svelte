@@ -6,11 +6,11 @@
 	import Draggable from 'carbon-icons-svelte/lib/Draggable.svelte';
 
 	import { fileOrFolderInFocus, tabs } from '$lib/sidebar';
-	import { notesdb } from '$lib';
+	import { notesdb, type Note } from '$lib';
 	import { goto, preloadCode, preloadData } from '$app/navigation';
 	import { page } from '$app/stores';
 
-	export let note: any;
+	export let note: Note;
 	let isEditing = false;
 
 	let noteTitle = note.title;

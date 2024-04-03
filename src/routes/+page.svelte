@@ -1,7 +1,6 @@
 <script>
 	import { goto } from '$app/navigation';
 	import { currentUser, notesdb } from '$lib';
-	import { stringEncryptAsymmetric } from '$lib/utils';
 	import { showSidebar, tabs } from '$lib/sidebar';
 	import Add from 'carbon-icons-svelte/lib/Add.svelte';
 	import keystore from 'keystore-idb';

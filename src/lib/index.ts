@@ -12,33 +12,31 @@ export const pocketbase = new PocketBase(PUBLIC_POCKETBASE_URL);
 
 export const currentUser = writable(pocketbase.authStore.model)
 
-export interface Notes {
+export interface Note {
     id: string;
     title: string;
-    user_id: string;
     note: string;
     created: string;
     updated: string;
     folder_id: string;
 }
 
-export interface Folders {
+export interface Folder {
     id: string;
     name: string;
-    user_id: string;
     created: string;
     updated: string;
 }
 
 class MySubClassedDexie extends Dexie {
-  notes!: Table<Notes>; 
-  folders!: Table<Folders>;
+  notes!: Table<Note>; 
+  folders!: Table<Folder>;
 
   constructor() {
     super('notesdb');
     this.version(1).stores({
-        notes: 'id, title, note, user_id, created, updated',
-        folders: 'id, name, user_id, created, updated'
+        notes: 'id, title, note, created, updated',
+        folders: 'id, name, created, updated'
     });
   }
 }
