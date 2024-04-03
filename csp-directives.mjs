@@ -3,9 +3,9 @@ const rootDomain = process.env.VITE_DOMAIN;;
 const cspDirectives = {
   'base-uri': ["'self'"],
   'child-src': ["'self'"],
-  'connect-src': ["'self'", 'ws://localhost:*', 'https://notesdb.reddeadlabs.com'],
-  'img-src': ["'self'", 'data:'],
-  'font-src': ["'self'", 'data:', 'https://fonts.gstatic.com'],
+  'connect-src': ["'self'", 'https://notesdb.reddeadlabs.com'],
+  'img-src': ["'self'"],
+  'font-src': ["'self'", 'https://fonts.gstatic.com'],
   'form-action': ["'self'"],
   'frame-ancestors': ["'self'"],
   'frame-src': [
@@ -14,7 +14,7 @@ const cspDirectives = {
   'manifest-src': ["'self'"],
   'media-src': ["'self'", 'data:'],
   'object-src': ["'none'"],
-  'style-src': ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+  'style-src': ["'self'", 'https://fonts.googleapis.com'],
   'default-src': [
     'self',
     ...(rootDomain ? [rootDomain, `ws://${rootDomain}`] : []),
