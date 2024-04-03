@@ -3,6 +3,7 @@
 	import { page } from '$app/stores';
 	import { currentUser, pocketbase } from '$lib';
 	import { dndzone } from 'svelte-dnd-action';
+	import keystore from 'keystore-idb';
 
 	import { stringEncryptAsymmetric } from '$lib/crypto';
 	import { notes, showSidebar, tabs } from '$lib/sidebar';
@@ -95,10 +96,14 @@
 			on:click={async () => {
 				const title = `Note #${$notes.length + 1}`;
 
-				const encryptedNote = stringEncryptAsymmetric(
-					localStorage.getItem('priv') || '',
-					{ key: localStorage.getItem('pub') || '' },
-					`# ${title} \n## Subtitle \n\nTo being with..`
+				const ks1 = await keystore.init({ storeName: 'keystore' });
+				const ks2 = await keystore.init({ storeName: 'keystore2' });
+
+				const exchangeKey2 = await ks2.publicExchangeKey();
+
+				const encryptedNote = await ks1.encrypt(
+					`# ${title} \n## Subtitle \n\nTo being with..`,
+					exchangeKey2
 				);
 
 				const record = await pocketbase.collection('notes').create({

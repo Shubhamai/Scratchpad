@@ -42,6 +42,7 @@
     "carbon-icons-svelte": "^12.3.0",
     "codemirror": "^6.0.1",
     "dayjs": "^1.11.9",
+    "keystore-idb": "^0.15.5",
     "lodash": "^4.17.21",
     "monaco-editor": "^0.43.0",
     "pocketbase": "^0.18.0",

@@ -6,6 +6,7 @@
 	import { dndzone } from 'svelte-dnd-action';
 	import { flip } from 'svelte/animate';
 	import { fileOrFolderInFocus, notes, folders, tabs, showSidebar } from '$lib/sidebar';
+	import keystore from 'keystore-idb';
 
 	import Folder from './Folder.svelte';
 	import File from './File.svelte';
@@ -32,7 +33,6 @@
 		files = n.filter((n) => !n.folder_id);
 	});
 </script>
-
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 
@@ -64,10 +64,14 @@
 
 				const title = `Note #${$notes.length + 1}`;
 
-				const encryptedNote = stringEncryptAsymmetric(
-					localStorage.getItem('priv') || '',
-					{ key: localStorage.getItem('pub') || '' },
-					`# ${title} \n## Subtitle \n\nTo being with..`
+				const ks1 = await keystore.init({ storeName: 'keystore' });
+				const ks2 = await keystore.init({ storeName: 'keystore2' });
+
+				const exchangeKey2 = await ks2.publicExchangeKey();
+
+				const encryptedNote = await ks1.encrypt(
+					`# ${title} \n## Subtitle \n\nTo being with..`,
+					exchangeKey2
 				);
 
 				if ($fileOrFolderInFocus.type === 'file') {

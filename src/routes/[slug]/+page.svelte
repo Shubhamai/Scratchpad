@@ -6,16 +6,22 @@
 	import { onMount } from 'svelte';
 	import { afterNavigate, beforeNavigate, onNavigate } from '$app/navigation';
 	import { showSidebar } from '$lib/sidebar.js';
+	import keystore from 'keystore-idb';
+	import type { KeyStore } from 'keystore-idb/lib/types.js';
 
 	export let data;
+	let note = '';
 
-	afterNavigate(() => {
-		// console.log('afterNavigate');
-		data.record.note = stringDecryptAsymmetric(
-			localStorage.getItem('priv') || '',
-			{ key: localStorage.getItem('pub') || '' },
-			data.record?.note
-		);
+	let ks1: null | KeyStore;
+	let ks2: null | KeyStore;
+
+	afterNavigate(async () => {
+		ks1 = await keystore.init({ storeName: 'keystore' });
+		ks2 = await keystore.init({ storeName: 'keystore2' });
+
+		const exchangeKey1 = await ks1.publicExchangeKey();
+
+		note = await ks2.decrypt(data.record?.note, exchangeKey1);
 	});
 
 	let styleObj = {
@@ -91,23 +97,16 @@
 <CodeMirror
 	class="editor-wrapper"
 	lang={markdown()}
-	value={data.record.note}
+	value={note}
 	on:change={async (e) => {
-		const encrypted = stringEncryptAsymmetric(
-			localStorage.getItem('priv') || '',
-			{ key: localStorage.getItem('pub') || '' },
-			e.detail
-		);
-		await pocketbase.collection('notes').update(data.record?.id, { note: encrypted });
+		if (!ks1 || !ks2) {
+			ks1 = await keystore.init({ storeName: 'keystore' });
+			ks2 = await keystore.init({ storeName: 'keystore2' });
+		}
+		const exchangeKey2 = await ks2.publicExchangeKey();
+		const cipher = await ks1.encrypt(e.detail, exchangeKey2);
+
+		await pocketbase.collection('notes').update(data.record?.id, { note: cipher });
 	}}
 	styles={{ '&': styleObj }}
 />
-<!-- styles={{
-	'&': {
-		// height: '59.2rem', // TODD : perhaps calculate this for responsive
-		height: 'calc(100vh - 2.9rem)',
-		// width: '107rem'
-		// change width based on this tialwind side changes sm:w-20 md:w-44 lg:w-52
-		width: `calc(100vw - 13rem)` // 13, 11, 5, 2.5
-	}
-}} -->

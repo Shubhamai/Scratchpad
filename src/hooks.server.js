@@ -7,22 +7,9 @@ import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
 export async function handle({ event, resolve }) {
 	event.locals.pb = new PocketBase(PUBLIC_POCKETBASE_URL);
 
-	const cookie = event.request.headers.get('cookie');
+	// load the store data from the request cookie string
+	event.locals.pb.authStore.loadFromCookie(event.request.headers.get('cookie') || '');
 
-	if (cookie) {
-		// load the store data from the request cookie string
-		event.locals.pb.authStore.loadFromCookie(cookie);
-	} else {
-		const username = nanoid(5);
-		const password = nanoid(10);
-
-		await event.locals.pb.collection('users').create({
-			username: username,
-			password: password,
-			passwordConfirm: password
-		});
-		await event.locals.pb.collection('users').authWithPassword(username, password);
-	}
 
 	try {
 		// get an up-to-date auth store state by verifying and refreshing the loaded auth model (if any)
@@ -31,6 +18,24 @@ export async function handle({ event, resolve }) {
 		// clear the auth store on failed refresh
 		event.locals.pb.authStore.clear();
 	}
+
+    // TODO : Is it in the right place ?
+    if (!event.locals.pb.authStore.isValid) {
+        const username = nanoid(5);
+        const password = nanoid(10);
+        
+
+        await event.locals.pb.collection('users').create({
+            "username": username,
+            "password": password,
+            "passwordConfirm": password,
+        });
+        await event.locals.pb.collection('users').authWithPassword(
+            username,
+            password,
+        );
+        
+    }
 
 	const response = await resolve(event);
 

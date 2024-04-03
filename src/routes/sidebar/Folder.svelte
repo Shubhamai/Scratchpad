@@ -55,13 +55,13 @@
 	>
 		{#if isEditing}
 			<input
-				class="text-left w-full max-w-full focus:outline-none bg-transparent"
+				class="text-left w-full focus:outline-none underline bg-transparent text-xs sm:text-base"
 				type="text"
 				bind:value={folderName}
 			/>
 		{:else}
 			<button
-				class="text-left w-full truncate text-xs sm:text-base"
+				class="text-left w-fit truncate text-xs sm:text-base"
 				on:click={async () => {
 					$fileOrFolderInFocus = {
 						type: 'folder',
