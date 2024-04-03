@@ -2,7 +2,8 @@
 	import DocumentAdd from 'carbon-icons-svelte/lib/DocumentAdd.svelte';
 	import FolderAdd from 'carbon-icons-svelte/lib/FolderAdd.svelte';
 	import { currentUser, pocketbase } from '$lib';
-
+	import { dndzone } from 'svelte-dnd-action';
+	import { flip } from 'svelte/animate';
 	import { fileOrFolderInFocus, notes, folders, tabs } from '$lib/sidebar';
 
 	import Folder from './Folder.svelte';
@@ -23,6 +24,12 @@
 			};
 		}
 	};
+
+	let files = $notes.filter((n) => !n.folder_id);
+
+	notes.subscribe((n) => {
+		files = n.filter((n) => !n.folder_id);
+	});
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -119,15 +126,58 @@
 		<div class="flex flex-col gap-1 list-decimal">
 			{#each $folders as folder (folder.id)}
 				<Folder {folder} />
-				<!-- <Folder {folder} {folders} /> -->
 			{/each}
-			{#each $notes as note (note.id)}
-				{#if !note.folder_id}
-					<File {note} />
-				{/if}
+			<section
+				class="rounded-md"
+				use:dndzone={{
+					items: files,
+					type: 'files',
+					dropTargetStyle: {},
+					dropTargetClasses: ['bg-gray-300']
+				}}
+				on:consider={(e) => {
+					const { items, info } = e.detail;
 
-				<!-- <File {note} {notes} /> -->
-			{/each}
+					// console.log('consider ', info.trigger);
+					// console.log('consider items ', items);
+
+					files = items;
+				}}
+				on:finalize={async (e) => {
+					const { items, info } = e.detail;
+
+					// console.log('finalize ', info.trigger);
+
+					files = items;
+
+					if (info.trigger === 'droppedIntoZone') {
+						$notes = $notes.map((n) => {
+							if (items.find((i) => i.id === n.id)) {
+								return { ...n, folder_id: '' };
+							}
+							return n;
+						});
+
+						items.map(
+							async (i) =>
+								await pocketbase.collection('notes').update(i.id, {
+									folder_id: ''
+								})
+						);
+					}
+
+					// console.log('finalize notes ', $notes);
+				}}
+			>
+				{#if files.length === 0}
+					<div class="py-3" />
+				{/if}
+				{#each files as note (note.id)}
+					<div animate:flip={{ duration: 300 }}>
+						<File {note} />
+					</div>
+				{/each}
+			</section>
 		</div>
 	</section>
 </div>

@@ -2,6 +2,10 @@
 	import Delete from 'carbon-icons-svelte/lib/TrashCan.svelte';
 	import ChevronRight from 'carbon-icons-svelte/lib/ChevronRight.svelte';
 	import ChevronDown from 'carbon-icons-svelte/lib/ChevronDown.svelte';
+	import Edit from 'carbon-icons-svelte/lib/Edit.svelte';
+
+	import { dndzone } from 'svelte-dnd-action';
+	import { flip } from 'svelte/animate';
 
 	import { pocketbase } from '$lib';
 	import { fileOrFolderInFocus, folders, notes, tabs } from '$lib/sidebar';
@@ -9,8 +13,27 @@
 	import { goto } from '$app/navigation';
 
 	export let folder: any;
+	let files = $notes.filter((n) => n.folder_id === folder.id);
 
+	notes.subscribe((n) => {
+		files = n.filter((n) => n.folder_id === folder.id);
+	});
+
+	let isEditing = false;
 	let open = false;
+
+	const onRenameFileInputChange = (e: any) => {
+		pocketbase.collection('folders').update(folder.id, {
+			name: e?.target?.value
+		});
+
+		$folders = $folders.map((n) => {
+			if (n.id === folder.id) {
+				return { ...n, name: e?.target?.value };
+			}
+			return n;
+		});
+	};
 </script>
 
 <div
@@ -18,7 +41,6 @@
 		$fileOrFolderInFocus.id === folder.id ? 'bg-gray-100' : ''
 	}`}
 >
-	<!-- <Delete class="" /> -->
 	{#if open}
 		<ChevronDown />
 	{:else}
@@ -28,21 +50,40 @@
 	<div
 		class={`group hover:underline flex flex-row justify-between text-sm py-1 w-full text-left rounded-sm`}
 	>
-		<button
-			class="text-left w-full"
-			on:click={async () => {
-				$fileOrFolderInFocus = {
-					type: 'folder',
-					id: folder.id
-				};
+		{#if isEditing}
+			<input
+				class="text-left w-full max-w-full focus:outline-none bg-transparent"
+				type="text"
+				bind:value={folder.name}
+				on:change={onRenameFileInputChange}
+				on:blur={() => {
+					isEditing = false;
+				}}
+			/>
+		{:else}
+			<button
+				class="text-left w-full"
+				on:click={async () => {
+					$fileOrFolderInFocus = {
+						type: 'folder',
+						id: folder.id
+					};
 
-				open = !open;
-			}}
-		>
-			{folder.name}
-		</button>
-
+					open = !open;
+				}}
+			>
+				{folder.name}
+			</button>
+		{/if}
 		<div class="flex flex-row gap-2 invisible group-hover:visible">
+			<button
+				title="rename folder"
+				on:click={() => {
+					isEditing = !isEditing;
+				}}
+			>
+				<Edit />
+			</button>
 			<button
 				title="delete the folder and all its notes"
 				on:click={async () => {
@@ -77,9 +118,57 @@
 </div>
 
 {#if open}
-	<div class="flex flex-col ml-6">
-		{#each $notes.filter((n) => n.folder_id === folder.id) as note}
-			<File {note} />
+	<div
+		class="flex flex-col ml-6 rounded-md"
+		use:dndzone={{
+			items: files,
+			type: 'files',
+			dropTargetStyle: {},
+			dropTargetClasses: ['bg-gray-300']
+		}}
+		on:consider={(e) => {
+			const { items, info } = e.detail;
+
+			// console.log('consider folder ', info.trigger);
+			if (info.trigger === 'draggedEntered') {
+				open = true;
+			} else if (info.trigger === 'draggedLeft') {
+				open = false;
+			}
+
+			files = items;
+		}}
+		on:finalize={async (e) => {
+			const { items, info } = e.detail;
+			// console.log('finalize folder ', info.trigger);
+
+			if (info.trigger === 'droppedIntoZone') {
+				$notes = $notes.map((n) => {
+					if (items.find((i) => i.id === n.id)) {
+						return { ...n, folder_id: folder.id };
+					}
+					return n;
+				});
+
+				items.map(
+					async (i) =>
+						await pocketbase.collection('notes').update(i.id, {
+							folder_id: folder.id
+						})
+				);
+				// console.log('droppedIntoZone ', $notes);
+			}
+
+			files = items;
+		}}
+	>
+		{#each files as note (note.id)}
+			<div animate:flip={{ duration: 300 }}>
+				<File {note} />
+			</div>
 		{/each}
+		{#if files.length === 0}
+			<div class="py-3" />
+		{/if}
 	</div>
 {/if}

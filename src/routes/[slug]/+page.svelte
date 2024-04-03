@@ -8,15 +8,6 @@
 
 	export let data;
 
-	// onMount(() => {
-		// console.log('onMount');
-		// 	data.record.note = stringDecryptAsymmetric(
-		// 		localStorage.getItem('priv') || '',
-		// 		{ key: localStorage.getItem('pub') || '' },
-		// 		data.record?.note
-		// 	);
-	// });
-
 	afterNavigate(() => {
 		// console.log('afterNavigate');
 		data.record.note = stringDecryptAsymmetric(

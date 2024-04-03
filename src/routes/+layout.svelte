@@ -18,7 +18,6 @@
 			localStorage.setItem('pub', keypair.publicKey);
 			localStorage.setItem('priv', keypair.privateKey);
 		}
-
 	});
 </script>
 

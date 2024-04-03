@@ -12,6 +12,7 @@
 	<title>Home</title>
 </svelte:head>
 
+<div>&nbsp;</div>
 <div
 	class="flex flex-col justify-center items-center gap-4 mx-auto my-auto text-sm sm:text-sm md:text-base"
 >
@@ -53,3 +54,8 @@
 		}}>Create Note <Add size={24} /></button
 	>
 </div>
+
+<p class="text-sm text-center italic pb-4 text-gray-600">
+	The application is currently in development. So expect bugs and issues as we are working on it. <br
+	/> Do not store any sensitive information on this application.
+</p>

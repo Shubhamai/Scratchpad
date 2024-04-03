@@ -2,6 +2,9 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { currentUser, pocketbase } from '$lib';
+	import { dndzone } from 'svelte-dnd-action';
+	import { flip } from 'svelte/animate';
+
 	import { stringEncryptAsymmetric } from '$lib/crypto';
 	import { notes, tabs } from '$lib/sidebar';
 	import Add from 'carbon-icons-svelte/lib/Add.svelte';
@@ -23,9 +26,20 @@
 </script>
 
 <!-- border-b-gray-100 border-b-[1px] -->
-<div class="bg-gray-50 flex flex-row gap-[2px]">
+<div
+	class="bg-gray-50 flex flex-row gap-[2px]"
+	use:dndzone={{ items: $tabs, flipDurationMs: 300 }}
+	on:consider={(e) => {
+		const { items, info } = e.detail;
+		$tabs = items;
+	}}
+	on:finalize={(e) => {
+		const { items, info } = e.detail;
+		$tabs = items;
+	}}
+>
 	{#if $tabs.length === 0}
-		<div class="flex flex-row w-full justify-between items-center">
+		<div class="flex flex-row w-full justify-items-center justify-between items-center">
 			<button
 				title="Create new note"
 				class="flex flex-row items-center gap-2 bg-slate-100 w-fit px-2"
@@ -61,8 +75,6 @@
 				Create Note
 				<Add size={20} />
 			</button>
-			<div class="px-2 text-center text-sm">Scratchpad</div>
-			<div class="px-12" />
 		</div>
 	{/if}
 	{#each $tabs as tab (tab.id)}

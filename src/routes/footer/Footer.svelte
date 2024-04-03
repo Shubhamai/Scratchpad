@@ -45,5 +45,6 @@
 	{#if $page.params.slug && timeFromNow}
 		<p class="text-right pr-56 text-sm">{timeFromNow}</p>
 	{:else}
-		<p>&nbsp;</p>{/if}
+		<p class="text-right pr-56 text-sm">&nbsp;</p>
+	{/if}
 </div>
