@@ -3,7 +3,7 @@ const rootDomain = process.env.VITE_DOMAIN;;
 const cspDirectives = {
   'base-uri': ["'self'"],
   'child-src': ["'self'"],
-  'connect-src': ["'self'", 'https://notesdb.reddeadlabs.com'],
+  'connect-src': ["'self'", 'http://127.0.0.1:8090/api/', 'http://127.0.0.1:8090/_/'], // NOTE: Change here for pocketbase db
   'img-src': ["'self'"],
   'font-src': ["'self'", 'https://fonts.gstatic.com'],
   'form-action': ["'self'"],

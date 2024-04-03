@@ -1,38 +1,35 @@
-# create-svelte
+# Scratchpad
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+![](static\icon512.png)
 
-## Creating a project
+This is a simple fully offline notes application built with Svelte and using browser storage. pocketbase for online data storage.
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Features
 
+- Create, read, update, and delete notes.
+- A crude and probably incorrect implementation of encypting notes.
+- Easy to use interface built with Svelte.
+- Data can either be stored in-browser or synced using self-hosted pocketbase.
+
+## Installation
+
+1. Clone the repository:
 ```bash
-# create a new project in the current directory
-npm create svelte@latest
-
-# create a new project in my-app
-npm create svelte@latest my-app
+git clone https://github.com/Shubhamai/Scratchpad
+```
+2. Navigate into the project directory:
+```bash
+cd Scratchpad
+```
+3. Install the dependencies:
+```bash
+bun i
+```
+4. Start the application:
+```bash
+bun start
 ```
 
-## Developing
+## License
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for details.

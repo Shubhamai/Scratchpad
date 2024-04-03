@@ -17,7 +17,6 @@
 
 	<!-- Open Graph / Facebook -->
 	<meta property="og:type" content="website" />
-	<meta property="og:url" content="https://notes.reddeadlabs.com/" />
 	<meta
 		property="og:title"
 		content="ScratchPad - Your end-to-end encrypted offline first notepad."
@@ -30,8 +29,6 @@
 
 	<!-- Twitter -->
 	<meta property="twitter:card" content="summary" />
-	<meta property="twitter:url" content="https://notes.reddeadlabs.com/" />
-	<meta name="twitter:site" content="@reddeadlabs" />
 	<meta
 		property="twitter:title"
 		content="ScratchPad - Your end-to-end encrypted offline first notepad."
