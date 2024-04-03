@@ -7,7 +7,7 @@ export default {
     extend: {
       fontFamily: {
         // 'sans': ['Inter', 'Fuggles'],
-        'sans': [...defaultTheme.fontFamily.sans],
+        'sans': ['Inter', ...defaultTheme.fontFamily.sans],
       },
     }
   },
