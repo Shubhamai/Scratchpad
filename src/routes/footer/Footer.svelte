@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { currentUser, notesdb, pocketbase } from '$lib';
-	import { Cloud } from 'carbon-icons-svelte';
+	import Cloud from 'carbon-icons-svelte/lib/Cloud.svelte';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	import updateLocale from 'dayjs/plugin/updateLocale';
