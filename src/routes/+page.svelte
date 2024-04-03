@@ -10,6 +10,7 @@
 
 <svelte:head>
 	<title>Home</title>
+	<meta name="description" content="ScratchPad - Your end-to-end encrypted notepad." />
 </svelte:head>
 
 <div>&nbsp;</div>
