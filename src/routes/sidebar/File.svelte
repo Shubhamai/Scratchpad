@@ -1,6 +1,8 @@
 <script lang="ts">
 	import Delete from 'carbon-icons-svelte/lib/TrashCan.svelte';
 	import Edit from 'carbon-icons-svelte/lib/Edit.svelte';
+	import Checkmark from 'carbon-icons-svelte/lib/Checkmark.svelte';
+	import Close from 'carbon-icons-svelte/lib/Close.svelte';
 
 	import { fileOrFolderInFocus, tabs, notes } from '$lib/sidebar';
 	import { pocketbase } from '$lib';
@@ -10,21 +12,22 @@
 	export let note: any;
 	let isEditing = false;
 
-	const onRenameFileInputChange = (e: any) => {
+	let noteTitle = note.title;
+	const changeFileName = () => {
 		pocketbase.collection('notes').update(note.id, {
-			title: e?.target?.value
+			title: noteTitle
 		});
 
 		$notes = $notes.map((n) => {
 			if (n.id === note.id) {
-				return { ...n, title: e?.target?.value };
+				return { ...n, title: noteTitle };
 			}
 			return n;
 		});
 
 		$tabs = $tabs.map((t) => {
 			if (t.id === note.id) {
-				return { ...t, name: e?.target?.value };
+				return { ...t, name: noteTitle };
 			}
 			return t;
 		});
@@ -42,13 +45,9 @@
 	>
 		{#if isEditing}
 			<input
-				class="text-left w-full max-w-full focus:outline-none bg-transparent"
+				class="text-left w-full max-w-full focus:outline-none underline bg-transparent"
 				type="text"
-				bind:value={note.title}
-				on:change={onRenameFileInputChange}
-				on:blur={() => {
-					isEditing = false;
-				}}
+				bind:value={noteTitle}
 			/>
 		{:else}
 			<button
@@ -103,46 +102,64 @@
 
 		<!-- Delete note button -->
 		<div class="flex flex-row gap-2 invisible group-hover:visible">
-			<button
-				title="rename note"
-				on:click={() => {
-					isEditing = !isEditing;
-				}}
-			>
-				<Edit />
-			</button>
-			<button
-				title="Delete note"
-				on:click={async () => {
-					$notes = $notes.filter((n) => n.id !== note.id);
+			{#if isEditing}
+				<button
+					title="Done"
+					on:click={() => {
+						isEditing = !isEditing;
+						changeFileName();
+					}}
+					><Checkmark />
+				</button>
+				<button
+					title="Cancel"
+					on:click={() => {
+						isEditing = !isEditing;
+						noteTitle = note.title;
+					}}
+					><Close />
+				</button>
+			{:else}
+				<button
+					title="rename note"
+					on:click={() => {
+						isEditing = !isEditing;
+					}}
+				>
+					<Edit />
+				</button>
+				<button
+					title="Delete note"
+					on:click={async () => {
+						$notes = $notes.filter((n) => n.id !== note.id);
 
-					pocketbase.collection('notes').delete(note.id);
+						pocketbase.collection('notes').delete(note.id);
 
-					// if the tab is active, close it
-					const activeTab = $tabs.find((t) => t.active);
-					if (activeTab?.id === note.id) {
-						$tabs = $tabs.filter((t) => t.id !== note.id);
+						// if the tab is active, close it
+						const activeTab = $tabs.find((t) => t.active);
+						if (activeTab?.id === note.id) {
+							$tabs = $tabs.filter((t) => t.id !== note.id);
 
-						// if there si another tab, set that as active
-						if ($tabs.length > 0) {
-							// change the first tab to active,
-							$tabs = $tabs.map((t) => {
-								if (t.id === $tabs[0].id) {
-									return { ...t, active: true };
-								}
-								return { ...t, active: false };
-							});
+							// if there si another tab, set that as active
+							if ($tabs.length > 0) {
+								// change the first tab to active,
+								$tabs = $tabs.map((t) => {
+									if (t.id === $tabs[0].id) {
+										return { ...t, active: true };
+									}
+									return { ...t, active: false };
+								});
 
-							await goto(`/${$tabs[0].id}`);
+								await goto(`/${$tabs[0].id}`);
+							} else {
+								await goto('/');
+							}
 						} else {
-							await goto('/');
+							// if the tab is not active, just remove it
+							$tabs = $tabs.filter((t) => t.id !== note.id);
 						}
-					} else {
-						// if the tab is not active, just remove it
-						$tabs = $tabs.filter((t) => t.id !== note.id);
-					}
-				}}><Delete /></button
-			>
+					}}><Delete /></button
+				>{/if}
 		</div>
 	</div>
 </div>

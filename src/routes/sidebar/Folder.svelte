@@ -3,6 +3,8 @@
 	import ChevronRight from 'carbon-icons-svelte/lib/ChevronRight.svelte';
 	import ChevronDown from 'carbon-icons-svelte/lib/ChevronDown.svelte';
 	import Edit from 'carbon-icons-svelte/lib/Edit.svelte';
+	import Checkmark from 'carbon-icons-svelte/lib/Checkmark.svelte';
+	import Close from 'carbon-icons-svelte/lib/Close.svelte';
 
 	import { dndzone } from 'svelte-dnd-action';
 	import { flip } from 'svelte/animate';
@@ -21,15 +23,16 @@
 
 	let isEditing = false;
 	let open = false;
+	let folderName = folder.name;
 
-	const onRenameFileInputChange = (e: any) => {
+	const changeFolderName = () => {
 		pocketbase.collection('folders').update(folder.id, {
-			name: e?.target?.value
+			name: folderName
 		});
 
 		$folders = $folders.map((n) => {
 			if (n.id === folder.id) {
-				return { ...n, name: e?.target?.value };
+				return { ...n, name: folderName };
 			}
 			return n;
 		});
@@ -54,11 +57,7 @@
 			<input
 				class="text-left w-full max-w-full focus:outline-none bg-transparent"
 				type="text"
-				bind:value={folder.name}
-				on:change={onRenameFileInputChange}
-				on:blur={() => {
-					isEditing = false;
-				}}
+				bind:value={folderName}
 			/>
 		{:else}
 			<button
@@ -76,43 +75,62 @@
 			</button>
 		{/if}
 		<div class="flex flex-row gap-2 invisible group-hover:visible">
-			<button
-				title="rename folder"
-				on:click={() => {
-					isEditing = !isEditing;
-				}}
-			>
-				<Edit />
-			</button>
-			<button
-				title="delete the folder and all its notes"
-				on:click={async () => {
-					$folders = $folders.filter((n) => n.id !== folder.id);
+			{#if isEditing}
+				<button
+					title="Done"
+					on:click={() => {
+						isEditing = !isEditing;
+						changeFolderName();
+					}}
+					><Checkmark />
+				</button>
+				<button
+					title="Cancel"
+					on:click={() => {
+						isEditing = !isEditing;
+						folderName = folder.name;
+					}}
+					><Close />
+				</button>
+			{:else}
+				<button
+					title="rename folder"
+					on:click={() => {
+						isEditing = !isEditing;
+					}}
+				>
+					<Edit />
+				</button>
+				<button
+					title="delete the folder and all its notes"
+					on:click={async () => {
+						$folders = $folders.filter((n) => n.id !== folder.id);
 
-					// delete notes from the folders expand.notes array in pocketbase
-					for (const note of $notes.filter((n) => n.folder_id === folder.id)) {
-						await pocketbase.collection('notes').delete(note.id);
+						// delete notes from the folders expand.notes array in pocketbase
+						for (const note of $notes.filter((n) => n.folder_id === folder.id)) {
+							await pocketbase.collection('notes').delete(note.id);
 
-						$tabs = $tabs.filter((t) => t.id !== note.id);
-					}
+							$tabs = $tabs.filter((t) => t.id !== note.id);
+						}
 
-					await pocketbase.collection('folders').delete(folder.id);
+						await pocketbase.collection('folders').delete(folder.id);
 
-					// if any tab is active, change to the first tab else go to home
-					if ($tabs.length > 0) {
-						$tabs = $tabs.map((t) => {
-							if (t.id === $tabs[0].id) {
-								return { ...t, active: true };
-							}
-							return { ...t, active: false };
-						});
+						// if any tab is active, change to the first tab else go to home
+						if ($tabs.length > 0) {
+							$tabs = $tabs.map((t) => {
+								if (t.id === $tabs[0].id) {
+									return { ...t, active: true };
+								}
+								return { ...t, active: false };
+							});
 
-						await goto(`/${$tabs[0].id}`);
-					} else {
-						await goto('/');
-					}
-				}}><Delete /></button
-			>
+							await goto(`/${$tabs[0].id}`);
+						} else {
+							await goto('/');
+						}
+					}}><Delete /></button
+				>
+			{/if}
 		</div>
 	</div>
 </div>
@@ -132,9 +150,10 @@
 			// console.log('consider folder ', info.trigger);
 			if (info.trigger === 'draggedEntered') {
 				open = true;
-			} else if (info.trigger === 'draggedLeft') {
-				open = false;
 			}
+			// else if (info.trigger === 'draggedLeft') {
+			// 	open = false;
+			// }
 
 			files = items;
 		}}
