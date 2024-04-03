@@ -7,7 +7,6 @@
 </script>
 
 <div class="flex flex-row">
-
 	<CodeMirror
 		class="flex-auto"
 		lang={markdown()}
@@ -22,5 +21,4 @@
 			}
 		}}
 	/>
-	>
 </div>
