@@ -1,6 +1,8 @@
 # Scratchpad
 
-![](static\icon512.png)
+<kbd>
+  <img src="static/icon512.png">
+</kbd>
 
 This is a simple fully offline notes application built with Svelte and using browser storage. pocketbase for online data storage.
 
@@ -27,7 +29,7 @@ bun i
 ```
 4. Start the application:
 ```bash
-bun start
+bun dev
 ```
 
 ## License
