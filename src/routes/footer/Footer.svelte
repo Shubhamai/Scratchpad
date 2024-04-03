@@ -43,8 +43,8 @@
 
 <div class="bg-gray-50 border-t-gray-100 border-t-[2px] flex flex-row items-center justify-end">
 	{#if $page.params.slug && timeFromNow}
-		<p class="text-right pr-56 text-sm">{timeFromNow}</p>
+		<p class="text-right pr-20 sm:pr-56 text-sm">{timeFromNow}</p>
 	{:else}
-		<p class="text-right pr-56 text-sm">&nbsp;</p>
+		<p class="text-right text-sm">&nbsp;</p>
 	{/if}
 </div>

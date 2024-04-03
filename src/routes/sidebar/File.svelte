@@ -52,7 +52,7 @@
 			/>
 		{:else}
 			<button
-				class="text-left w-full truncate"
+				class="text-left w-full truncate text-xs sm:text-base"
 				on:mouseover={() => {
 					preloadData(`/${note.id}`);
 					preloadCode(`/${note.id}`);
@@ -102,7 +102,7 @@
 		{/if}
 
 		<!-- Delete note button -->
-		<div class="flex flex-row gap-2 invisible group-hover:visible">
+		<div class="flex flex-row gap-1 sm:gap-2 invisible group-hover:visible">
 			{#if isEditing}
 				<button
 					title="Done"

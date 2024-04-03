@@ -17,14 +17,14 @@
 <div
 	class="flex flex-col justify-center items-center gap-4 mx-auto my-auto text-sm sm:text-sm md:text-base"
 >
-	<h1 class="text-5xl font-black">ScratchPad</h1>
+	<h1 class="text-2xl sm:text-5xl font-black">ScratchPad</h1>
 
-	<h3 class="text-base">Your end-to-end encrypted notepad.</h3>
+	<h3 class="text-sm sm:text-base text-center">Your end-to-end encrypted notepad.</h3>
 
 	<!-- Dark them in createw note button, like shadcn -->
 	<button
 		title="Create new note"
-		class="bg-black hover:shadow-xl text-white pl-5 pr-4 py-2 rounded-3xl flex flex-row items-center gap-1"
+		class="bg-black hover:shadow-xl text-white text-xs pl-[8px] pr-[3px] py-[2px] sm:text-base sm:pl-5 sm:pr-4 sm:py-2 rounded-3xl flex flex-row items-center gap-1"
 		on:click={async () => {
 			const title = `Note #${$notes.length + 1}`;
 
@@ -56,7 +56,7 @@
 	>
 </div>
 
-<p class="text-sm text-center italic pb-4 text-gray-600">
+<p class="text-xs sm:text-sm text-center italic pb-4 text-gray-600">
 	The application is currently in development. So expect bugs and issues as we are working on it. <br
 	/> Do not store any sensitive information on this application.
 </p>

@@ -3,12 +3,13 @@
 	import { page } from '$app/stores';
 	import { currentUser, pocketbase } from '$lib';
 	import { dndzone } from 'svelte-dnd-action';
-	import { flip } from 'svelte/animate';
 
 	import { stringEncryptAsymmetric } from '$lib/crypto';
-	import { notes, tabs } from '$lib/sidebar';
+	import { notes, showSidebar, tabs } from '$lib/sidebar';
 	import Add from 'carbon-icons-svelte/lib/Add.svelte';
 	import Cross from 'carbon-icons-svelte/lib/Close.svelte';
+	import OpenPanelRight from 'carbon-icons-svelte/lib/OpenPanelRight.svelte';
+
 	import { onMount } from 'svelte';
 
 	onMount(async () => {
@@ -25,7 +26,6 @@
 	});
 </script>
 
-<!-- border-b-gray-100 border-b-[1px] -->
 <div
 	class="bg-gray-50 flex flex-row gap-[2px]"
 	use:dndzone={{ items: $tabs, flipDurationMs: 300 }}
@@ -38,45 +38,6 @@
 		$tabs = items;
 	}}
 >
-	{#if $tabs.length === 0}
-		<div class="flex flex-row w-full justify-items-center justify-between items-center">
-			<button
-				title="Create new note"
-				class="flex flex-row items-center gap-2 bg-slate-100 w-fit px-2"
-				on:click={async () => {
-					const title = `Note #${$notes.length + 1}`;
-
-					const encryptedNote = stringEncryptAsymmetric(
-						localStorage.getItem('priv') || '',
-						{ key: localStorage.getItem('pub') || '' },
-						`# ${title} \n## Subtitle \n\nTo being with..`
-					);
-
-					const record = await pocketbase.collection('notes').create({
-						title,
-						note: encryptedNote,
-						user_id: $currentUser?.id
-					});
-
-					$notes = [...$notes, record];
-
-					$tabs = [
-						...$tabs,
-						{
-							id: record.id,
-							name: record.title,
-							active: true
-						}
-					];
-
-					await goto(`/${record.id}`);
-				}}
-			>
-				Create Note
-				<Add size={20} />
-			</button>
-		</div>
-	{/if}
 	{#each $tabs as tab (tab.id)}
 		<div
 			class={`flex flex-row items-center gap-2 ${
@@ -159,5 +120,18 @@
 		>
 			<Add />
 		</button>
+	{/if}
+	{#if !$showSidebar}
+		<button
+			title="Open sidebar"
+			class="ml-auto mr-5 p-[4px] bg-slate-50"
+			on:click={() => {
+				$showSidebar = !$showSidebar;
+			}}
+		>
+			<OpenPanelRight />
+		</button>
+	{:else}
+		&nbsp;
 	{/if}
 </div>

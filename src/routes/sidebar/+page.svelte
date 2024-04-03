@@ -1,10 +1,11 @@
 <script lang="ts">
 	import DocumentAdd from 'carbon-icons-svelte/lib/DocumentAdd.svelte';
 	import FolderAdd from 'carbon-icons-svelte/lib/FolderAdd.svelte';
+	import OpenPanelRight from 'carbon-icons-svelte/lib/OpenPanelRight.svelte';
 	import { currentUser, pocketbase } from '$lib';
 	import { dndzone } from 'svelte-dnd-action';
 	import { flip } from 'svelte/animate';
-	import { fileOrFolderInFocus, notes, folders, tabs } from '$lib/sidebar';
+	import { fileOrFolderInFocus, notes, folders, tabs, showSidebar } from '$lib/sidebar';
 
 	import Folder from './Folder.svelte';
 	import File from './File.svelte';
@@ -32,9 +33,12 @@
 	});
 </script>
 
+
 <!-- svelte-ignore a11y-no-static-element-interactions -->
+
 <div
-	class="bg-gray-50 flex-none py-8 px-2 w-52 h-full overflow-y-auto border-l-[1px] border-l-gray-100 items-list overflow-x-clip"
+	class={`bg-gray-50 flex-none py-8 px-2 h-full max-sm:w-36 md:w-44 lg:w-52 overflow-y-auto border-l-[1px] border-l-gray-100 items-list `}
+	style="display: {$showSidebar ? 'block' : 'none'}"
 	on:click={removeFocus}
 	on:keydown={(e) => {
 		if (e.key === 'Escape') {
@@ -45,7 +49,14 @@
 		}
 	}}
 >
-	<section class="flex flex-row place-content-end gap-2 px-4">
+	<section class="flex flex-row items-center place-content-end gap-2 px-4">
+		<button
+			title="close sidebar"
+			class="mr-auto mt-1"
+			on:click={() => {
+				$showSidebar = !$showSidebar;
+			}}><OpenPanelRight /></button
+		>
 		<button
 			title="Create new note"
 			on:click={async () => {

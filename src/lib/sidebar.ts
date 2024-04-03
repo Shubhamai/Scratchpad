@@ -20,3 +20,4 @@ export const fileOrFolderInFocus : Writable<{
 
 export const notes : Writable<RecordModel[]> = writable([]); 
 export const folders : Writable<RecordModel[]> = writable([]); 
+export const showSidebar : Writable<boolean> = writable(true);
