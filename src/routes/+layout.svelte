@@ -1,6 +1,5 @@
 <script lang="ts">
 	import '../app.css';
-	import '../fonts.css';
 
 	import Header from './header/Header.svelte';
 	import Sidebar from './sidebar/+page.svelte';

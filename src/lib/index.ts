@@ -2,7 +2,11 @@
 
 import PocketBase from 'pocketbase';
 import { writable } from 'svelte/store';
+import {
+    PUBLIC_POCKETBASE_URL
+} from '$env/static/public';
 
-export const pocketbase = new PocketBase('http://127.0.0.1:8090');
+
+export const pocketbase = new PocketBase(PUBLIC_POCKETBASE_URL);
 
 export const currentUser = writable(pocketbase.authStore.model)
